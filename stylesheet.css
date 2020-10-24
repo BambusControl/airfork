@@ -1,5 +1,10 @@
 /* Aspoň 6 CSS pravidiel */
 
 body {
-    background-color: lightgrey;
+    background-color: whitesmoke;
+}
+
+#logo {
+    transform: scale(2.5);
+    height: 32px;
 }

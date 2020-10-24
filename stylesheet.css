@@ -2,9 +2,33 @@
 
 body {
     background-color: whitesmoke;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+body::-webkit-scrollbar {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    display: none;
 }
 
 #logo {
     transform: scale(2.5);
     height: 32px;
+}
+
+p {
+    text-align: justify;
+}
+
+.card {
+    border-radius: 1vh;
+}
+
+.img-preview {
+    width: 100%;
+    min-height: 128px;
+    max-height: 256px;
+    object-fit: cover;
+    border-top-left-radius: 1vh;
+    border-top-right-radius: 1vh;
 }

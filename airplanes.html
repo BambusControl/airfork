@@ -28,9 +28,12 @@
 <body>
 
     <!-- Navbar -->
-    <div class="container-fluid p-0">
-        <nav class="navbar navbar-expand-sm bg-light navbar-light border">
-            <div class="container-lg border-left border-right">
+    <div class="container-fluid shadow-sm p-4 mb-4">
+    <nav class="navbar navbar-expand-sm bg-light navbar-light border rounded">
+        <div class="container-md p-2 border-left border-right">
+            <span class="navbar-brand ml-3">Logo</span>
+
+            <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="index.html">Index</a>
@@ -42,10 +45,14 @@
                         <a class="nav-link" href="airfields.html">Letiská</a>
                     </li>
                 </ul>
-                <img id="logo" class="navbar-brand" src="visuals/logo_airplane.svg" alt="Logo of an airplane">
             </div>
-        </nav>
-    </div>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+</div>
 
     <!-- Obsah -->
     <div class="container-fluid p-3">

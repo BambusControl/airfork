@@ -76,5 +76,57 @@ div.landingPagePlane {
     width: 100%;
 }
 
-.logo {
+img.logo {
+    padding: 0;
+    height: 5vh;
+    overflow: visible;
+}
+
+#landing-page {
+    animation: animation_landings 5s forwards;
+}
+
+#landing-page img.logo:hover {
+    animation: animation_departure 5s forwards;
+}
+
+@keyframes animation_landings {
+    from {
+        filter: drop-shadow(32px 32px 0px rgba(0,0,0,0));
+        transform: translateX(100vw) rotateZ(180deg) scale(2.5);
+        animation-timing-function: linear;
+    }
+    40% {
+        filter: drop-shadow(0px 0px 0px rgba(0,0,0,64));
+        transform:translateX(30vw) rotateZ(180deg) scale(1);
+        animation-timing-function: ease-out;
+    }
+    80% {
+        transform: translateX(0) rotateZ(180deg);
+        animation-timing-function: linear;
+    }
+    to {
+        transform: translateX(0) rotateZ(0deg);
+        visibility: visible;
+    }
+}
+
+@keyframes animation_departure {
+    from {
+        transform: translateX(0);
+        animation-timing-function: ease-in;
+    }
+    50% {
+        filter: drop-shadow(0px 0px 0px gray);
+        color: black;
+        transform:translateX(40vw) scale(1);
+        animation-timing-function: linear;
+    }
+    to {
+        filter: drop-shadow(32px 32px 2px gray);
+        transform: translateX(100vw) scale(2.5);
+        visibility: visible;
+        animation-timing-function: linear;
+    }
+
 }

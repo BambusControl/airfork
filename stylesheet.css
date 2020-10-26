@@ -2,21 +2,20 @@
 
 body {
     background-color: whitesmoke;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
-
-body::-webkit-scrollbar {
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    display: none;
-}
-
-p {
-    text-align: justify;
 }
 
 .navbar {
     font-size: 1.25rem;
+}
+
+p {
+    text-align: justify;
+    color: rgb(32, 32, 32);
+    font-size: 1.1rem;
+}
+
+div.news h2, div.news h3 {
+    padding-bottom: 1rem;
 }
 
 .card {
@@ -32,44 +31,13 @@ p {
     border-top-right-radius: 1vh;
 }
 
-div.landingPageSky {
-    margin: auto;
-    background-image: url("visuals/landingPage_Sky.png");
-    background-repeat: no-repeat;
-    background-position: bottom;
-    background-attachment: fixed;
-    min-height: 100vh;
-    background-size: cover;
+.story-title {
+    border-radius: 2vh;
+    background: rgba(128, 64, 96, 0.6);
+    color: whitesmoke;
 }
 
-div.landingPagePlane {
-    background-image: url("visuals/landingPage_Airplane.png");
-    background-repeat: no-repeat;
-    background-size: 0;
-    background-position: 50% 40%;
-    background-attachment: scroll;
-    min-height: 100vh;
-
-    animation-iteration-count: 1;
-    animation-delay: 0.5s;
-    animation: animation_landing 10s forwards;
-}
-
-@keyframes animation_landing {
-    0% {
-        background-position-y: 40%;
-        background-size: 0;
-    }
-    70% {
-        background-position-y: 100%;
-    }
-    100% {
-        background-position-y: 100%;
-        background-size: 55vw;
-    }
-}
-
-.img-bait {
+div.news img {
     margin: 2vh 0 2vh 0;
     border-radius: 1vh;
     min-height: 10vh;
@@ -87,13 +55,10 @@ img.logo {
     animation: animation_landings 5s forwards;
 }
 
-#landing-page img.logo:hover {
-    animation: animation_departure 5s forwards;
-}
 
 @keyframes animation_landings {
     from {
-        filter: drop-shadow(32px 32px 0px rgba(0,0,0,0));
+        filter: drop-shadow(32px 32px 2px rgba(0,0,0,0));
         transform: translateX(100vw) rotateZ(180deg) scale(2.5);
         animation-timing-function: linear;
     }
@@ -110,24 +75,4 @@ img.logo {
         transform: translateX(0) rotateZ(0deg);
         visibility: visible;
     }
-}
-
-@keyframes animation_departure {
-    from {
-        transform: translateX(0);
-        animation-timing-function: ease-in;
-    }
-    50% {
-        filter: drop-shadow(0px 0px 0px gray);
-        color: black;
-        transform:translateX(40vw) scale(1);
-        animation-timing-function: linear;
-    }
-    to {
-        filter: drop-shadow(32px 32px 2px gray);
-        transform: translateX(100vw) scale(2.5);
-        visibility: visible;
-        animation-timing-function: linear;
-    }
-
 }

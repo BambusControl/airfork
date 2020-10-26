@@ -72,7 +72,8 @@ div.landingPagePlane {
 .img-bait {
     margin: 2vh 0 2vh 0;
     border-radius: 1vh;
-    min-height: 50vh;
+    min-height: 10vh;
+    max-height: 50vh;
     width: 100%;
 }
 

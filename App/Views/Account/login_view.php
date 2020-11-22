@@ -12,7 +12,7 @@
                 </div>
 
                 <div class="input-group mb-3">
-                    <input type="text" name="password" class="form-control" placeholder="password">
+                    <input type="password" name="password" class="form-control" placeholder="password">
                 </div>
 
                 <div class="input-group mb-3">

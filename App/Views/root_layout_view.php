@@ -37,26 +37,26 @@
         <nav class="navbar navbar-expand-sm bg-light navbar-light border rounded">
 
             <div class="container-md p-2 border-left border-right">
-                <img class="navbar-brand ml-3 logo" id="landing-page" src="../../public/visuals/logo_airplane.svg" alt="logo">
+                <img class="navbar-brand ml-3 logo" <?= @$_GET['a'] == 'index' ? 'id="landing-page"' : '' ?> src="../../public/visuals/logo_airplane.svg" alt="logo">
 
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link <?= $data['page'] == 'index' ? 'active' : '' ?>" href="?c=home">Novinky</a>
+                            <a class="nav-link <?= @$_GET['a'] == 'index' ? 'active' : '' ?>" href="?c=home">Novinky</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= $data['page'] == 'airplanes' ? 'active' : '' ?>" href="?c=home&a=airplanes">Lietadlá</a>
+                            <a class="nav-link <?= @$_GET['a'] == 'airplanes' ? 'active' : '' ?>" href="?c=home&a=airplanes">Lietadlá</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= $data['page'] == 'airfields' ? 'active' : '' ?>" href="?c=home&a=airfields">Letiská</a>
+                            <a class="nav-link <?= @$_GET['a'] == 'airfields' ? 'active' : '' ?>" href="?c=home&a=airfields">Letiská</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle <?= @$_GET['c'] == 'account' ? 'active' : '' ?>" href="#" id="navbardrop" data-toggle="dropdown">
                                 Users
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="?c=account&a=login">Login</a>
-                                <a class="dropdown-item" href="?c=account&a=register">Register</a>
+                                <a class="dropdown-item <?= @$_GET['a'] == 'login' ? 'active' : '' ?>" href="?c=account&a=login">Login</a>
+                                <a class="dropdown-item <?= @$_GET['a'] == 'register' ? 'active' : '' ?>" href="?c=account&a=register">Register</a>
                             </div>
                         </li>
                     </ul>

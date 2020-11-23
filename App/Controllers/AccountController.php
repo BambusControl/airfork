@@ -6,11 +6,17 @@ namespace App\Controllers;
 
 use App\Core\AControllerBase;
 use App\Models\Account;
+use Exception;
 
 class AccountController extends AControllerBase
 {
 
-    private $account_array;
+    private ?array $account_array;
+
+    private function redir_err(): void
+    {
+        header('Location: ?c=home&a=errorpage');
+    }
 
     private function is_logged_in() : bool
     {
@@ -24,7 +30,12 @@ class AccountController extends AControllerBase
         {
             session_start(['read_and_close' => true]);
             $uid = $_SESSION['uid'];
-            return Account::getOne($uid)->as_array();
+            try {
+                return Account::getOne($uid)->as_array();
+            } catch (Exception $e) {
+                $this->redir_err();
+                exit(0);
+            }
         }
         return $this->account_array;
     }
@@ -33,8 +44,8 @@ class AccountController extends AControllerBase
     {
         try {
             $accounts = Account::getAll();
-        } catch (\Exception $e) {
-            header('Location: ?c=home&a=errorpage');
+        } catch (Exception $e) {
+            $this->redir_err();
             exit(0);
         }
         $errors = [];
@@ -42,8 +53,8 @@ class AccountController extends AControllerBase
         if ( !is_null($account->getId()) ) {
             try {
                 $id_acc = Account::getOne($account->getId());
-            } catch (\Exception $e) {
-                header('Location: ?c=home&a=errorpage');
+            } catch (Exception $e) {
+                $this->redir_err();
                 exit(0);
             }
         }
@@ -86,8 +97,8 @@ class AccountController extends AControllerBase
         // Inputs are ok
         try {
             $account->save();
-        } catch (\Exception $e) {
-            header('Location: ?c=home&a=errorpage');
+        } catch (Exception $e) {
+            $this->redir_err();
             exit(0);
         }
         return [];
@@ -97,19 +108,17 @@ class AccountController extends AControllerBase
     {
         try {
             $accounts = Account::getAll();
-        } catch (\Exception $e) {
-            header('Location: ?c=home&a=errorpage');
+        } catch (Exception $e) {
+            $this->redir_err();
             exit(0);
         }
 
-        foreach ($accounts as $a) {
-            if ($a->getUsername() === $username) {
-                if (password_verify($password, $a->getPassword())) {
-                    //if (password_needs_rehash($a->getPassword(), PASSWORD_DEFAULT))
-                    //{
-                    //todo rehash
-                    //}
-
+        foreach ($accounts as $a)
+        {
+            if ($a->getUsername() === $username)
+            {
+                if (password_verify($password, $a->getPassword()))
+                {
                     // Session creation
                     session_start();
 
@@ -130,7 +139,15 @@ class AccountController extends AControllerBase
 
     public function index()
     {
-        header('Location: ?c=account&a=login');
+        if ($this->is_logged_in())
+        {
+            header('Location: ?c=account&a=profile');
+        }
+        else
+        {
+            header('Location: ?c=account&a=login');
+        }
+
         exit(0);
     }
 
@@ -151,6 +168,8 @@ class AccountController extends AControllerBase
             }
             else
             {
+                // bad login
+                $_POST['error_credentials'] = 'Nesprávne prihlasovacie údaje';
                 return $_POST;
             }
         }
@@ -174,6 +193,7 @@ class AccountController extends AControllerBase
                     $_POST['date_of_birth'],
                     $_POST['gender']
                 );
+
                 $_POST['error'] = $this->create_or_update_account($account);
 
                 if ( empty($_POST['error']) )
@@ -184,7 +204,7 @@ class AccountController extends AControllerBase
                     }
                     else
                     {
-                        header('Location: ?c=home&a=errorpage');
+                        $this->redir_err();
                     }
                     exit(0);
                 }
@@ -206,10 +226,11 @@ class AccountController extends AControllerBase
     {
         session_start(['read_and_close' => true]);
         $uid = $_SESSION['uid'];
+
         try {
             return Account::getOne($uid)->as_array();
-        } catch (\Exception $e) {
-            header('Location: ?c=home&a=errorpage');
+        } catch (Exception $e) {
+            $this->redir_err();
             exit(0);
         }
     }
@@ -243,12 +264,14 @@ class AccountController extends AControllerBase
                 );
 
                 $_POST['error'] = $this->create_or_update_account($account);
+
                 if (empty($_POST['error']))
                 {
                     session_start();
                     $_SESSION['username'] = $_POST['username'];
                     session_commit();
                 }
+
                 $_POST['password'] = '';
                 $_POST['disable_password_checkbox'] = false;
                 return $_POST;
@@ -266,5 +289,35 @@ class AccountController extends AControllerBase
         exit(0);
     }
 
+    public function delete_account()
+    {
+        if (isset($_POST['password']))
+        {
+            session_start(['read_and_close' => true]);
+            try {
+                $account = Account::getOne($_SESSION['uid']);
+            } catch (Exception $e) {
+                $this->redir_err();
+                exit(0);
+            }
+
+            if ( password_verify($_POST['password'], $account->getPassword()) )
+            {
+                try {
+                    $account->delete();
+                } catch (Exception $e) {
+                    $this->redir_err();
+                    exit(0);
+                }
+                $this->logout();
+            }
+            else
+            {
+                return ['error_password' => 'Nesprávne heslo'];
+            }
+        }
+
+        return [];
+    }
 
 }

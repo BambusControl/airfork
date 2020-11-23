@@ -11,11 +11,6 @@ class HomeController extends AControllerBase
 
     public function index()
     {
-        if ( !isset($_GET['c']) || !isset($_GET['a']) )
-        {
-            header('Location: ?c=home&a=index');
-            exit(0);
-        }
         return [];
     }
 

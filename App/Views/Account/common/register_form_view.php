@@ -20,7 +20,7 @@
         <div class="col-sm-6">
             <div class="form-group mb-3 is-valid">
                 <label for="email" class="col-form-label">Email</label>
-                <input type="email" name="email" class="form-control <?= empty($data['error']['email']) ? '' : 'is-invalid' ?>" placeholder="someone@here.com" aria-describedby="password-warning" value="<?= empty($data['email']) ? "" : $data['email'] ?>" required>
+                <input type="email" name="email" id="email" class="form-control <?= empty($data['error']['email']) ? '' : 'is-invalid' ?>" placeholder="someone@here.com" aria-describedby="password-warning" value="<?= empty($data['email']) ? "" : $data['email'] ?>" required>
                 <?= empty($data['error']['email']) ? '' :
                     '<small id="password-warning" class="form-text invalid-feedback">' . $data['error']['email'] . '</small>'
                 ?>
@@ -115,7 +115,7 @@
 
         <div class="col-sm">
             <div class="form-group mb-3">
-                <input type="reset" class="form-control btn btn-outline-danger" value="Reset">
+                <input type="reset" class="form-control btn btn-outline-dark" value="Reset">
             </div>
         </div>
 

@@ -1,5 +1,5 @@
 <!-- Obsah -->
-<div class="container-fluid">
+<div class="container-fluid mt-4">
 
     <div class="container-xl">
         <h2>Lietadlá</h2>

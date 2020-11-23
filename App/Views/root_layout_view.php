@@ -1,5 +1,9 @@
 <?php /** @var array $data */ ?>
 <?php /** @var string $contentHTML */ ?>
+<?php
+session_start(['read_and_close' => true]);
+?>
+
 
 <!DOCTYPE html>
 <html lang="sk">
@@ -52,11 +56,21 @@
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle <?= @$_GET['c'] == 'account' ? 'active' : '' ?>" href="#" id="navbardrop" data-toggle="dropdown">
-                                Users
+                                <?= @$_SESSION['logged_in'] ? $_SESSION['username'] : 'Účet' ?>
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item <?= @$_GET['a'] == 'login' ? 'active' : '' ?>" href="?c=account&a=login">Login</a>
-                                <a class="dropdown-item <?= @$_GET['a'] == 'register' ? 'active' : '' ?>" href="?c=account&a=register">Register</a>
+                                <?=
+                                    @$_SESSION['logged_in'] ?
+                                        '
+                                            <a class="dropdown-item " href="?c=account&a=profile">Profilové údaje</a>
+                                            <a class="dropdown-item " href="?c=account&a=logout">Odhlásiť sa</a>
+                                        '
+                                        :
+                                        '
+                                            <a class="dropdown-item " href="?c=account&a=login">Prihlásenie</a>
+                                            <a class="dropdown-item " href="?c=account&a=register">Registrácia</a>
+                                        '
+                                ?>
                             </div>
                         </li>
                     </ul>

@@ -3,29 +3,44 @@
 
     <div class="container-xl">
 
-        <div class="container-fluid p-3">
+        <div class="m-auto p-3">
 
-            <!-- Form -->
-            <form method="post">
-                <div class="input-group mb-3">
-                    <input type="email" name="email" class="form-control" placeholder="email">
-                </div>
+            <div class="jumbotron border shadow-sm m-4">
 
-                <div class="input-group mb-3">
-                    <input type="password" name="password" class="form-control" placeholder="password">
-                </div>
+                <h1 class="display-4">Prihlásenie</h1>
 
-                <div class="input-group mb-3">
-                    <input type="submit" class="form-control btn btn-primary" value="submit">
-                </div>
-            </form>
+                <!-- Form -->
+                <form method="post">
 
-            <?php if (isset($_POST['email'])) { ?>
-                <div class="container-fluid p-3">
-                    <p>Email: <?php echo $_POST['email']?></p>
-                    <p>Password: <?php echo $_POST['password']?></p>
-                </div>
-            <?php } ?>
+                    <div class="form-row">
+                        <div class="col-sm">
+                            <div class="form-group mb-3">
+                                <label for="username" class="col-form-label">Používateľské meno</label>
+                                <input type="text" name="username" id="username" class="form-control" value="<?= empty($data['username']) ? "" : $data['username'] ?>" placeholder="username" pattern="^\S+" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-sm">
+                            <div class="form-group mb-3">
+                                <label for="password" class="col-form-label">Heslo</label>
+                                <input type="password" name="password" id="password" class="form-control" placeholder="password" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-sm">
+                            <div class="form-group mb-3">
+                                <input type="submit" class="form-control btn btn-primary" value="submit">
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
 
         </div>
 

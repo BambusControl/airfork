@@ -14,20 +14,24 @@ class HomeController extends AControllerBase
         if ( !isset($_GET['c']) || !isset($_GET['a']) )
         {
             header('Location: ?c=home&a=index');
+            exit(0);
         }
-        return [
-        ];
+        return [];
     }
 
     public function airplanes()
     {
-        return [
-        ];
+        return [];
     }
 
     public function airfields()
     {
-        return [
-        ];
+        return [];
     }
+
+    public function errorpage()
+    {
+        return [];
+    }
+
 }

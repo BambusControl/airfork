@@ -41,7 +41,7 @@ session_start(['read_and_close' => true]);
         <nav class="navbar navbar-expand-sm bg-light navbar-light border rounded">
 
             <div class="container-md p-2 border-left border-right">
-                <img class="navbar-brand ml-3 logo" <?= @$_GET['a'] == 'index' ? 'id="landing-page"' : '' ?> src="../../public/visuals/logo_airplane.svg" alt="logo">
+                <img class="navbar-brand ml-3 logo" <?= @$_GET['a'] == '' ? 'id="landing-page"' : '' ?> src="../../public/visuals/logo_airplane.svg" alt="logo">
 
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="navbar-nav">

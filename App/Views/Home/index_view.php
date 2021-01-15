@@ -1,3 +1,7 @@
+<!-- News post loader script -->
+<script src="/public/scripts/imagePath.js"></script>
+<script src="/public/scripts/news.js"></script>
+
 <!-- Locator -->
 <div class="container-fluid p-1 mb-2 border">
     <div class="container-xl">
@@ -8,12 +12,17 @@
 <!-- Obsash -->
 <div class="container-fluid">
 
-    <div class="container-xl news">
+    <div class="container-xl">
 
         <p class="lead">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas neque justo, pulvinar ac mauris sed, sagittis bibendum diam. Vestibulum semper odio at dolor porttitor condimentum. Ut metus lorem, accumsan a auctor vitae, commodo malesuada urna. Donec venenatis orci vehicula feugiat cursus. Vestibulum nec mauris felis. Vivamus a molestie erat. Praesent bibendum efficitur commodo. Quisque luctus aliquet dictum. Nunc cursus porta ullamcorper. Pellentesque lobortis lectus nec mi ultrices, id varius purus molestie. Etiam lobortis ipsum et nisl tristique accumsan. Nullam tincidunt sollicitudin felis, sed ornare magna mattis quis. Integer lorem sem, tempor vitae risus tempor, pulvinar faucibus nunc. Phasellus vitae augue commodo, bibendum erat ultrices, suscipit erat. Aliquam scelerisque nulla quis diam suscipit vehicula. Mauris auctor varius nulla, quis vulputate nisl.
         </p>
 
+        <div class="news" id="news-container">
+
+        </div>
+
+        <!--
         <div class="row pt-3 pb-3">
             <div class="col-sm-4">
                 <img class="bait" src="../../../public/visuals/img_news_turboengine.jpg" alt="Turbojet engine, without covering">
@@ -74,7 +83,7 @@
                 </p>
             </div>
         </div>
-
+    -->
     </div>
 
 </div>

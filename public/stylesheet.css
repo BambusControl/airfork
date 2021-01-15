@@ -16,7 +16,7 @@ div.news h2, div.news h3 {
     padding-bottom: 1rem;
 }
 
-.card {
+.plane {
     border-radius: 1.15vh;
 }
 
@@ -36,11 +36,17 @@ div.news h2, div.news h3 {
 }
 
 div.news img {
-    margin: 2vh 0 2vh 0;
-    border-radius: 1vh;
-    min-height: 10vh;
-    max-height: 50vh;
     width: 100%;
+    object-fit: cover;
+    min-height: 30vh;
+    max-height: 100vh;
+    border-top-left-radius: 1vh;
+    border-top-right-radius: 1vh;
+}
+
+div.news div.card{
+    border-radius: 1vh;
+    margin-bottom: 2vh;
 }
 
 img.logo {

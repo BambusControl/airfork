@@ -12,7 +12,7 @@
 
         <div class="card-columns">
 
-            <div class="card">
+            <div class="card plane">
                 <img class="img-preview" src="../../../public/visuals/airplanes/nextant_400xt1i.jpg" alt="image">
                 <div class="card-body">
                     <h4 class="card-title">Nextant 400XTi</h4>
@@ -20,35 +20,35 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card plane">
                 <img class="img-preview" src="../../../public/visuals/airplanes/cessna_152.jpg" alt="image">
                 <div class="card-body">
                     <h4 class="card-title">Textron Cessna 152</h4>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card plane">
                 <img class="img-preview" src="../../../public/visuals/airplanes/jmb_v3.jpg" alt="image">
                 <div class="card-body">
                     <h4 class="card-title">JMB Aircraft VL3</h4>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card plane">
                 <img class="img-preview" src="../../../public/visuals/airplanes/a320.jpg" alt="image">
                 <div class="card-body">
                     <h4 class="card-title">Airbus A320-200</h4>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card plane">
                 <img class="img-preview" src="../../../public/visuals/airplanes/diamond_da40.jpg" alt="image">
                 <div class="card-body">
                     <h4 class="card-title">Diamond Aircraft DA40</h4>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card plane">
                 <img class="img-preview" src="../../../public/visuals/airplanes/sling_LSA.jpg" alt="image">
                 <div class="card-body">
                     <h4 class="card-title">Sling LSA</h4>

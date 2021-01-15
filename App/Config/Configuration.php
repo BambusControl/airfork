@@ -10,23 +10,13 @@ namespace App\Config;
 class Configuration
 {
     public const DB_HOST = 'localhost';
-    public const DB_NAME = 'user';
+    public const DB_NAME = 'content';
     public const DB_USER = 'root';
     public const DB_PASS = 'dtb456';
 
     public const LOGIN_URL = '/';
 
-    private static $instance = NULL;
+    public const ROOT_LAYOUT = 'root_layout_view.php';
 
-    /**
-     * Gets olny one instance
-     * @return Configuration|null
-     */
-    public static function getInstance()
-    {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
+    public const DEBUG_QUERY = false;
 }

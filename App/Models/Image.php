@@ -4,13 +4,15 @@
 namespace App\Models;
 
 
+use App\Core\Model;
+
 class Image extends Model
 {
 
     protected $id;
-    private string $author;
-    private string $path;
-    private string $alt;
+    protected $author;
+    protected $path;
+    protected $alt;
 
     public function __construct($id = null, $author = '', $path = '', $alt = '')
     {

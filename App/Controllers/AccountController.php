@@ -13,6 +13,189 @@ class AccountController extends AControllerBase
 
     private ?array $account_array;
 
+    public function index()
+    {
+        if ($this->is_logged_in())
+        {
+            header('Location: ?c=account&a=profile');
+        }
+        else
+        {
+            header('Location: ?c=account&a=login');
+        }
+
+        exit(0);
+    }
+
+    public function login()
+    {
+        if ($this->is_logged_in())
+        {
+            header('Location: ?c=account&a=profile');
+            exit(0);
+        }
+
+        if ( isset($_POST['username']) )
+        {
+            if ( $this->account_login($_POST['username'], $_POST['password']) )
+            {
+                header('Location: ?c=account&a=profile');
+                exit(0);
+            }
+            else
+            {
+                // bad login
+                $_POST['error_credentials'] = 'Nesprávne prihlasovacie údaje';
+                return $this->html($_POST);
+            }
+        }
+
+        return $this->html();
+    }
+
+    public function register()
+    {
+        if (!$this->is_logged_in())
+        {
+            if ( isset($_POST['username']) )
+            {
+                $account = new Account(
+                    null,
+                    $_POST['username'],
+                    $_POST['email'],
+                    password_hash($_POST['password'],PASSWORD_DEFAULT),
+                    $_POST['firstname'],
+                    $_POST['lastname'],
+                    $_POST['date_of_birth'],
+                    $_POST['gender']
+                );
+
+                $_POST['error'] = $this->create_or_update_account($account);
+
+                if ( empty($_POST['error']) )
+                {
+                    if ($this->account_login($_POST['username'], $_POST['password']))
+                    {
+                        header('Location: ?c=account&a=profile');
+                    }
+                    else
+                    {
+                        $this->redir_err();
+                    }
+                    exit(0);
+                }
+
+                $_POST['disable_password_checkbox'] = true;
+                return $this->html($_POST);
+            }
+        }
+        else
+        {
+            header('Location: ?c=account&a=profile');
+            exit(0);
+        }
+
+        return $this->html(['disable_password_checkbox' => true]);
+    }
+
+    public function profile()
+    {
+        session_start(['read_and_close' => true]);
+        $uid = $_SESSION['uid'];
+
+        try {
+            return $this->html(Account::getOne($uid)->as_array());
+        } catch (Exception $e) {
+            $this->redir_err();
+            exit(0);
+        }
+    }
+
+    public function logout()
+    {
+        session_start();
+        $_SESSION = array();
+        session_destroy();
+        $this->account_array = null;
+
+        header('Location: ?c=account&a=login');
+        exit(0);
+    }
+
+    public function edit_profile()
+    {
+        if ($this->is_logged_in())
+        {
+            if (isset($_POST['username']))
+            {
+                $account = new Account(
+                    $_SESSION['uid'],
+                    $_POST['username'],
+                    $_POST['email'],
+                    isset($_POST['password-checkbox']) ? password_hash($_POST["password"], PASSWORD_DEFAULT) : $this->get_account_array()['password'],
+                    $_POST['firstname'],
+                    $_POST['lastname'],
+                    $_POST['date_of_birth'],
+                    $_POST['gender']
+                );
+
+                $_POST['error'] = $this->create_or_update_account($account);
+
+                if (empty($_POST['error']))
+                {
+                    session_start();
+                    $_SESSION['username'] = $_POST['username'];
+                    session_commit();
+                }
+
+                $_POST['password'] = '';
+                $_POST['disable_password_checkbox'] = false;
+                return $this->html($_POST);
+            }
+            else
+            {
+                $a = $this->get_account_array();
+                $a['password'] = '';
+                $a['disable_password_checkbox'] = false;
+                return $this->html($a);
+            }
+        }
+
+        header('Location: ?c=account&a=login');
+        exit(0);
+    }
+
+    public function delete_account()
+    {
+        if (isset($_POST['password']))
+        {
+            session_start(['read_and_close' => true]);
+            try {
+                $account = Account::getOne($_SESSION['uid']);
+            } catch (Exception $e) {
+                $this->redir_err();
+                exit(0);
+            }
+
+            if ( password_verify($_POST['password'], $account->getPassword()) )
+            {
+                try {
+                    $account->delete();
+                } catch (Exception $e) {
+                    $this->redir_err();
+                    exit(0);
+                }
+                $this->logout();
+            }
+            else
+            {
+                return $this->html(['error_password' => 'Nesprávne heslo']);
+            }
+        }
+
+        return $this->html();
+    }
+
     private function redir_err(): void
     {
         header('Location: ?c=home&a=errorpage');
@@ -135,189 +318,6 @@ class AccountController extends AControllerBase
 
         // Wrong username or password
         return false;
-    }
-
-    public function index()
-    {
-        if ($this->is_logged_in())
-        {
-            header('Location: ?c=account&a=profile');
-        }
-        else
-        {
-            header('Location: ?c=account&a=login');
-        }
-
-        exit(0);
-    }
-
-    public function login()
-    {
-        if ($this->is_logged_in())
-        {
-            header('Location: ?c=account&a=profile');
-            exit(0);
-        }
-
-        if ( isset($_POST['username']) )
-        {
-            if ( $this->account_login($_POST['username'], $_POST['password']) )
-            {
-                header('Location: ?c=account&a=profile');
-                exit(0);
-            }
-            else
-            {
-                // bad login
-                $_POST['error_credentials'] = 'Nesprávne prihlasovacie údaje';
-                return $_POST;
-            }
-        }
-
-        return [];
-    }
-
-    public function register()
-    {
-        if (!$this->is_logged_in())
-        {
-            if ( isset($_POST['username']) )
-            {
-                $account = new Account(
-                    null,
-                    $_POST['username'],
-                    $_POST['email'],
-                    password_hash($_POST['password'],PASSWORD_DEFAULT),
-                    $_POST['firstname'],
-                    $_POST['lastname'],
-                    $_POST['date_of_birth'],
-                    $_POST['gender']
-                );
-
-                $_POST['error'] = $this->create_or_update_account($account);
-
-                if ( empty($_POST['error']) )
-                {
-                    if ($this->account_login($_POST['username'], $_POST['password']))
-                    {
-                        header('Location: ?c=account&a=profile');
-                    }
-                    else
-                    {
-                        $this->redir_err();
-                    }
-                    exit(0);
-                }
-
-                $_POST['disable_password_checkbox'] = true;
-                return $_POST;
-            }
-        }
-        else
-        {
-            header('Location: ?c=account&a=profile');
-            exit(0);
-        }
-
-        return ['disable_password_checkbox' => true];
-    }
-
-    public function profile()
-    {
-        session_start(['read_and_close' => true]);
-        $uid = $_SESSION['uid'];
-
-        try {
-            return Account::getOne($uid)->as_array();
-        } catch (Exception $e) {
-            $this->redir_err();
-            exit(0);
-        }
-    }
-
-    public function logout()
-    {
-        session_start();
-        $_SESSION = array();
-        session_destroy();
-        $this->account_array = null;
-
-        header('Location: ?c=account&a=login');
-        exit(0);
-    }
-
-    public function edit_profile()
-    {
-        if ($this->is_logged_in())
-        {
-            if (isset($_POST['username']))
-            {
-                $account = new Account(
-                    $_SESSION['uid'],
-                    $_POST['username'],
-                    $_POST['email'],
-                    isset($_POST['password-checkbox']) ? password_hash($_POST["password"], PASSWORD_DEFAULT) : $this->get_account_array()['password'],
-                    $_POST['firstname'],
-                    $_POST['lastname'],
-                    $_POST['date_of_birth'],
-                    $_POST['gender']
-                );
-
-                $_POST['error'] = $this->create_or_update_account($account);
-
-                if (empty($_POST['error']))
-                {
-                    session_start();
-                    $_SESSION['username'] = $_POST['username'];
-                    session_commit();
-                }
-
-                $_POST['password'] = '';
-                $_POST['disable_password_checkbox'] = false;
-                return $_POST;
-            }
-            else
-            {
-                $a = $this->get_account_array();
-                $a['password'] = '';
-                $a['disable_password_checkbox'] = false;
-                return $a;
-            }
-        }
-
-        header('Location: ?c=account&a=login');
-        exit(0);
-    }
-
-    public function delete_account()
-    {
-        if (isset($_POST['password']))
-        {
-            session_start(['read_and_close' => true]);
-            try {
-                $account = Account::getOne($_SESSION['uid']);
-            } catch (Exception $e) {
-                $this->redir_err();
-                exit(0);
-            }
-
-            if ( password_verify($_POST['password'], $account->getPassword()) )
-            {
-                try {
-                    $account->delete();
-                } catch (Exception $e) {
-                    $this->redir_err();
-                    exit(0);
-                }
-                $this->logout();
-            }
-            else
-            {
-                return ['error_password' => 'Nesprávne heslo'];
-            }
-        }
-
-        return [];
     }
 
 }

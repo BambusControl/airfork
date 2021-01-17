@@ -27,10 +27,11 @@ class ImagePath
 
     getById(id)
     {
-        return {"path" : this.imagePath[id], "alt" : this.imageAlt[id]} ;
+        //return {"path" : this.imagePath[id], "alt" : this.imageAlt[id]};
+        return {"path" : this.imagePath[id], "alt" : this.imageAlt[id]};
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+/*document.addEventListener("DOMContentLoaded", () => {
     let imagePath = new ImagePath();
-});
+});*/

@@ -12,10 +12,6 @@ p {
     font-size: 1.1rem;
 }
 
-div.news h2, div.news h3 {
-    padding-bottom: 1rem;
-}
-
 .plane {
     border-radius: 1.15vh;
 }
@@ -38,14 +34,11 @@ div.news h2, div.news h3 {
 div.news img {
     width: 100%;
     object-fit: cover;
-    min-height: 30vh;
-    max-height: 100vh;
-    border-top-left-radius: 1vh;
-    border-top-right-radius: 1vh;
+    min-height: 10vh;
+    max-height: 30vh;
 }
 
 div.news div.card{
-    border-radius: 1vh;
     margin-bottom: 2vh;
 }
 
@@ -53,6 +46,43 @@ img.logo {
     padding: 0;
     height: 5vh;
     overflow: visible;
+}
+
+button {
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    border-radius: 1vh;
+}
+
+.btn-upvote:hover {
+    background-color: RGBA(0, 0, 0, 0.05);
+    color: green;
+}
+
+.btn-downvote:hover {
+    background-color: RGBA(0, 0, 0, 0.05);
+    color: red;
+}
+
+.upvoted {
+    color: green;
+}
+
+.downvoted {
+    color: red;
+}
+
+.vote-block {
+    margin-right: 2vh;
+}
+
+.mlr-1 {
+    margin-left: 1vh;
+    margin-right: 1vh;
+    /*padding-left: 2vh;*/
+    /*padding-right: 2vh;*/
 }
 
 #landing-page {

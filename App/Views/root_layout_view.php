@@ -25,6 +25,9 @@ session_start(['read_and_close' => true]);
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+    <!-- Font Awesome icons -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
     <!-- My stylesheet -->
     <link rel="stylesheet" href="../../public/stylesheet.css">
 
@@ -62,8 +65,9 @@ session_start(['read_and_close' => true]);
                                 <?=
                                     @$_SESSION['logged_in'] ?
                                         '
-                                            <a class="dropdown-item " href="?c=account&a=profile">Profilové údaje</a>
-                                            <a class="dropdown-item " href="?c=account&a=logout">Odhlásiť sa</a>
+                                            <a class="dropdown-item" href="?c=account&a=profile">Profilové údaje</a>
+                                            <a class="dropdown-item" href="?c=account&a=logout">Odhlásiť sa</a>
+                                            <a class="dropdown-item" href="?c=home&a=add_article">Pridať článok</a>
                                         '
                                         :
                                         '

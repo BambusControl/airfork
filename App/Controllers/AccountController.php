@@ -233,7 +233,9 @@ class AccountController extends AControllerBase
         }
         $errors = [];
 
+        $id_acc = null;
         if ( !is_null($account->getId()) ) {
+            // User is already in database
             try {
                 $id_acc = Account::getOne($account->getId());
             } catch (Exception $e) {
@@ -242,10 +244,22 @@ class AccountController extends AControllerBase
             }
         }
 
+        // Input validation
         foreach ($accounts as $a)
         {
-            if (is_null($id_acc))
-            {
+            if (is_null($id_acc)) {
+                // User doesn't exist - check validity against all
+                if ($a->getUsername() == $account->getUsername())
+                {
+                    $errors['username'] = 'Tento username bol už použitý';
+                }
+
+                if ($a->getEmail() == $account->getEmail())
+                {
+                    $errors['email'] = 'Tento email bol už registrovaný';
+                }
+            } elseif ($a->getId() !== $id_acc->getId()) {
+                // User already exists - check validity against all other accounts
                 if ($a->getUsername() == $account->getUsername())
                 {
                     $errors['username'] = 'Tento username bol už použitý';
@@ -256,25 +270,13 @@ class AccountController extends AControllerBase
                     $errors['email'] = 'Tento email bol už registrovaný';
                 }
             }
-            elseif ($a->getId() !== $id_acc->getId())
-            {
-                if ($a->getUsername() == $account->getUsername())
-                {
-                    $errors['username'] = 'Tento username bol už použitý';
-                }
 
-                if ($a->getEmail() == $account->getEmail())
-                {
-                    $errors['email'] = 'Tento email bol už registrovaný';
-                }
-            }
+        }
 
-
-            // Error in inputs
-            if (!empty($errors))
-            {
-                return $errors;
-            }
+        // Error in inputs  TODO better input checking also check all input fields
+        if (!empty($errors))
+        {
+            return $errors;
         }
 
         // Inputs are ok
@@ -284,6 +286,7 @@ class AccountController extends AControllerBase
             $this->redir_err();
             exit(0);
         }
+
         return [];
     }
 

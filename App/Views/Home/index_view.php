@@ -1,6 +1,7 @@
 <!-- News post loader script -->
 <script src="/public/scripts/imagePath.js"></script>
 <script src="/public/scripts/news.js"></script>
+<script src="/public/scripts/other.js"></script>
 
 <!-- Locator -->
 <div class="container-fluid p-1 mb-2 border">

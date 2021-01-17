@@ -146,4 +146,24 @@ class Post extends Model
     {
         $this->date = $date;
     }
+
+    public function upvote()
+    {
+        $this->upvotes++;
+    }
+
+    public function downvote()
+    {
+        $this->downvotes++;
+    }
+
+    public function removeUpvote()
+    {
+        $this->upvotes--;
+    }
+
+    public function removeDownvote()
+    {
+        $this->downvotes--;
+    }
 }

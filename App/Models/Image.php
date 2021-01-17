@@ -36,4 +36,12 @@ class Image extends Model
     {
         return 'images';
     }
+
+    /**
+     * @return mixed|null
+     */
+    public function getId(): ?mixed
+    {
+        return $this->id;
+    }
 }

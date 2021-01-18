@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\AControllerBase;
 use App\Models\Account;
+use App\Models\Post;
 use Exception;
 
 class AccountController extends AControllerBase
@@ -100,15 +101,28 @@ class AccountController extends AControllerBase
 
     public function profile()
     {
-        session_start(['read_and_close' => true]);
-        $uid = $_SESSION['uid'];
+        if (!self::is_logged_in()) {
+            $this->redirLogin();
+            exit(0);
+        }
+
+        if (isset($_GET['uid'])) {
+            $uid = $_GET['uid'];
+        } else {
+            session_start(['read_and_close' => true]);
+            $uid = $_SESSION['uid'];
+        }
+
+
 
         try {
-            return $this->html(Account::getOne($uid)->as_array());
+            $account = Account::getOne($uid);
         } catch (Exception $e) {
             $this->redir_err();
             exit(0);
         }
+
+        return $this->html($account->as_array());
     }
 
     public function logout()
@@ -201,10 +215,27 @@ class AccountController extends AControllerBase
         header('Location: ?c=home&a=errorpage');
     }
 
-    private function is_logged_in() : bool
+    public static function is_logged_in() : bool
     {
         session_start(['read_and_close' => true]);
         return @$_SESSION['logged_in'] === true;
+    }
+
+    public function logged_in()
+    {
+        $str = [];
+        $str['logged_in'] = $this->is_logged_in();
+        $str['uid'] = self::get_uid() . '';
+        $str = $this->json($str);
+        return $str;
+    }
+
+    private function get_uid()
+    {
+        if ($this->is_logged_in()) {
+            return @$_SESSION['uid'];
+        }
+        return null;
     }
 
     private function get_account_array()
@@ -321,6 +352,11 @@ class AccountController extends AControllerBase
 
         // Wrong username or password
         return false;
+    }
+
+    private function redirLogin(): void
+    {
+        header('Location: ?c=account&a=login');
     }
 
 }

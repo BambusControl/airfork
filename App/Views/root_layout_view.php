@@ -48,15 +48,27 @@ session_start(['read_and_close' => true]);
 
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="navbar-nav">
+
                         <li class="nav-item">
                             <a class="nav-link <?= @$_GET['a'] == 'index' ? 'active' : '' ?>" href="?c=home">Novinky</a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link <?= @$_GET['a'] == 'airplanes' ? 'active' : '' ?>" href="?c=home&a=airplanes">Lietadlá</a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link <?= @$_GET['a'] == 'airfields' ? 'active' : '' ?>" href="?c=home&a=airfields">Letiská</a>
                         </li>
+
+                        <?=
+                        isset($_SESSION['uid']) ? '
+                                <li class="nav-item">
+                                    <a class="nav-link" href="?c=home&a=userposts">Príspevky</a>
+                                </li>
+                            ' : '';
+                        ?>
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle <?= @$_GET['c'] == 'account' ? 'active' : '' ?>" href="#" id="navbardrop" data-toggle="dropdown">
                                 <?= @$_SESSION['logged_in'] ? $_SESSION['username'] : 'Účet' ?>
@@ -67,7 +79,7 @@ session_start(['read_and_close' => true]);
                                         '
                                             <a class="dropdown-item" href="?c=account&a=profile">Profilové údaje</a>
                                             <a class="dropdown-item" href="?c=account&a=logout">Odhlásiť sa</a>
-                                            <a class="dropdown-item" href="?c=home&a=add_article">Pridať článok</a>
+                                            <a class="dropdown-item" href="?c=home&a=add_article">Pridať príspevok</a>
                                         '
                                         :
                                         '
@@ -77,6 +89,7 @@ session_start(['read_and_close' => true]);
                                 ?>
                             </div>
                         </li>
+
                     </ul>
                 </div>
 

@@ -1,3 +1,7 @@
+<!-- News post loader script -->
+<script src="/public/scripts/imagePath.js"></script>
+<script src="/public/scripts/postHandler.js"></script>
+
 <?php /** @var array $data */ ?>
 
 <!-- Obsah -->
@@ -10,6 +14,10 @@
             <p class="lead">Toto je váš profil</p>
             <hr class="my-4">
             <a class="btn btn-info" href="?c=account&a=edit_profile">Editovať profil</a>
+        </div>
+
+        <div class="post" id="post-container" title="userpost">
+
         </div>
 
     </div>

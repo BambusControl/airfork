@@ -144,6 +144,42 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
+     * Saves the current model to DB (if model id is set, updates it, else creates a new model)
+     * @return mixed
+     */
+    public function saveCK($save, $col1, $key1, $col2, $key2)
+    {
+        if ($col1 == null || $key1 == null || $col2 == null || $key2 == null) {
+            return;
+        }
+        self::connect();
+        try {
+            $data = array_fill_keys(self::getDbColumns(), null);
+            foreach ($data as $key => &$item) {
+                $item = isset($this->$key) ? $this->$key : null;
+            }
+            if ($save) {
+                $arrColumns = array_map(fn($item) => (':' . $item), array_keys($data));
+                $columns = implode(',', array_keys($data));
+                $params = implode(',', $arrColumns);
+                $sql = "INSERT INTO " . self::getTableName() . " ($columns) VALUES ($params)";
+                $stmt = self::$connection->prepare($sql);
+                $stmt->execute($data);
+//                return self::$connection->lastInsertId();
+            } else {
+                $arrColumns = array_map(fn($item) => ($item . '=:' . $item), array_keys($data));
+                $columns = implode(',', $arrColumns);
+                $sql = "UPDATE " . self::getTableName() . " SET $columns WHERE " . $col1 . "=" . $key1 . " AND " . $col2 . "=" . $key2;
+                $stmt = self::$connection->prepare($sql);
+                $stmt->execute($data);
+//                return $data[self::$pkColumn];
+            }
+        } catch (PDOException $e) {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Deletes current model from DB
      * @throws \Exception If model not exists, throw an exception
      */
@@ -157,6 +193,26 @@ abstract class Model implements \JsonSerializable
             $sql = "DELETE FROM " . self::getTableName() . " WHERE id=?";
             $stmt = self::$connection->prepare($sql);
             $stmt->execute([$this->{self::$pkColumn}]);
+            if ($stmt->rowCount() == 0) {
+                throw new \Exception('Model not found!');
+            }
+        } catch (PDOException $e) {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Deletes current model from DB
+     * @throws \Exception If model not exists, throw an exception
+     */
+    public function deleteCK($col1, $key1, $col2, $key2)
+    {
+        self::connect();
+        try {
+            $sql = "DELETE FROM " . self::getTableName() . " WHERE " . $col1 . "=" . $key1 . " AND " . $col2 . "=" . $key2;
+            $stmt = self::$connection->prepare($sql);
+            $stmt->execute([$this->{$col1}]);
+//            $stmt->execute();
             if ($stmt->rowCount() == 0) {
                 throw new \Exception('Model not found!');
             }

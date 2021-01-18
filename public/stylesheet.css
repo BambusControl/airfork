@@ -31,15 +31,27 @@ p {
     color: whitesmoke;
 }
 
-div.news img {
+div.post img {
     width: 100%;
     object-fit: cover;
-    min-height: 10vh;
-    max-height: 30vh;
+    min-height: 30vh;
+    max-height: 50vh;
 }
 
-div.news div.card{
+div.post div.card{
     margin-bottom: 2vh;
+}
+
+.max-height {
+    max-height: 80vh;
+}
+
+.overflow-h {
+    overflow: hidden;
+}
+
+.block {
+    width: 100%;
 }
 
 img.logo {
@@ -53,24 +65,39 @@ button {
     border: none;
     color: inherit;
     cursor: pointer;
+}
+
+button:hover {
+    background-color: RGBA(0, 0, 0, 0.05);
+}
+
+.outl-n:focus {
+    outline: none;
+}
+
+.btn-upvote {
+    border-radius: 1vh;
+}
+
+.btn-downvote {
     border-radius: 1vh;
 }
 
 .btn-upvote:hover {
-    background-color: RGBA(0, 0, 0, 0.05);
     color: green;
 }
 
 .btn-downvote:hover {
-    background-color: RGBA(0, 0, 0, 0.05);
     color: red;
 }
 
 .upvoted {
+    background-color: RGBA(0, 128, 0, 0.1);
     color: green;
 }
 
 .downvoted {
+    background-color: RGBA(128, 0, 0, 0.1);
     color: red;
 }
 
@@ -81,8 +108,6 @@ button {
 .mlr-1 {
     margin-left: 1vh;
     margin-right: 1vh;
-    /*padding-left: 2vh;*/
-    /*padding-right: 2vh;*/
 }
 
 #landing-page {

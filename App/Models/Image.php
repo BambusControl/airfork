@@ -12,14 +12,12 @@ class Image extends Model
     protected $id;
     protected $author;
     protected $path;
-    protected $alt;
 
-    public function __construct($id = null, $author = '', $path = '', $alt = '')
+    public function __construct($id = null, $author = '', $path = '')
     {
         $this->id = $id;
         $this->author = $author;
         $this->path = $path;
-        $this->alt = $alt;
     }
 
     static public function setDbColumns()
@@ -28,7 +26,6 @@ class Image extends Model
           'id',
           'author',
           'path',
-          'alt'
         ];
     }
 
@@ -37,10 +34,7 @@ class Image extends Model
         return 'images';
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getId(): ?mixed
+    public function getId()
     {
         return $this->id;
     }

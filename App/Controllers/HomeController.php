@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\AControllerBase;
 use App\Models\Image;
 use App\Models\Post;
+use App\Models\Vote;
 use Exception;
 
 class HomeController extends AControllerBase
@@ -15,10 +16,6 @@ class HomeController extends AControllerBase
     public function index()
     {
         // Novinky
-
-        // Nacitaj clanky z databazy
-        // Spracuj nacitane clanky
-        // Vykresli clanky
 
         return $this->html();
     }
@@ -35,55 +32,108 @@ class HomeController extends AControllerBase
 
     public function add_article()
     {
-        // check if logged in ?
-        if (isset($_POST['submit'])) {
-            session_start(['read_and_close' => true]);
-
-            $dest_path = null;
-            // Image file upload
-            if ( isset($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK ) {
-                // Spracuj image
-                // TODO Get alt
-                $fileTmpPath = $_FILES['image']['tmp_name'];
-                $fileName = $_FILES['image']['name'];
-                $fileSize = $_FILES['image']['size'];
-                $fileType = $_FILES['image']['type'];
-                $fileNameCmps = explode(".", $fileName);
-                $fileExtension = strtolower(end($fileNameCmps));
-
-                $newFileName = md5($fileName . time()) . '.' . $fileExtension;
-                $dest_path = 'public/visuals/images/' . $newFileName;
-                if(move_uploaded_file($fileTmpPath, $dest_path))
-                {
-                    $message ='File is successfully uploaded.';
-                    $image = new Image(
-                        null,
-                        $_SESSION['uid'],
-                        $dest_path,
-                        'TODO ALT'
-                    );
-                    // Update database
-                    $imageID = $image->save();
-                }
-
-            }
-
-            // Check all inputs
-            $post = new Post(
-                null,
-                'NEWS',
-                $_SESSION['uid'],
-                $_POST['title'],
-                $_POST['text'],
-                $imageID,
-                date("Y-m-d"),
-                0,
-                0
-            );
-            $post->save();
+        // Check if a user is logged in
+        if (!AccountController::is_logged_in()) {
+            header('Location: ?c=account&a=login');
+            exit(0);
         }
 
-        return$this->html();
+        session_start(['read_and_close' => true]);
+        $uid = $_SESSION['uid'];
+
+        // Check if user submitted a form
+        if (!isset($_POST['submit'])) {
+            return $this->html();
+        }
+
+        // Inputs
+        $title = $_POST['title'];
+        $text = $_POST['text'];
+        $isArticle = isset($_POST['article_switch']);
+
+        // Check all inputs
+        $errors = [];
+
+        if (empty($title)) {
+            $errors['title'] = "Title cannot be empty";
+        }
+
+        if (empty($text)) {
+            $errors['text'] = "Text field cannot be empty";
+        }
+
+        // If any errors occurred
+        if (count($errors) !== 0) {
+            $_POST['error'] = $errors;
+            return $this->html($_POST);
+        }
+
+        // Image
+        if ( isset($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK ) {
+
+            $tmpPath = $_FILES['image']['tmp_name'];
+            $filename = explode(".", $_FILES['image']['name']);
+            $extension = strtolower(end($filename));
+
+            // TODO hash img
+            md5_file($tmpPath);
+
+            // 'Random' filename
+            $filename = md5($filename . time()) . '.' . $extension;
+            $destPath = 'public/visuals/images/' . $filename;
+
+            if(move_uploaded_file($tmpPath, $destPath))
+            {
+                // Create DB entry
+                $image = new Image(
+                    null,
+                    $uid,
+                    $destPath
+                );
+
+                // Update database
+                try {
+                    $imageId = $image->save();
+                } catch (Exception $e) {
+                    $errors['image'] = 'Image could not be uploaded';
+                }
+            } else {
+                $errors['image'] = 'Image could not be uploaded';
+            }
+        } else {
+            $errors['image'] = 'Image could not be uploaded';
+        }
+
+        // If any errors occurred
+        if (count($errors) !== 0) {
+            $_POST['error'] = $errors;
+            return $this->html($_POST);
+        }
+
+        // Inputs are ok - create the post
+        $post = new Post(
+            null,
+            'article',
+            $_SESSION['uid'],
+            $_POST['title'],
+            $_POST['text'],
+            $imageId,
+            date("Y-m-d"),
+        );
+
+        try {
+            $post->save();
+        } catch (Exception $e) {
+            $_POST['error'] = $errors;
+            $errors['image'] = 'Image could not be uploaded';
+        }
+
+        return $this->html();
+    }
+
+    public function userposts()
+    {
+        return $this->html();
     }
 
     public function errorpage()
@@ -91,16 +141,36 @@ class HomeController extends AControllerBase
         return $this->html();
     }
 
-    public function news()
+    public function get_all_posts()
     {
+        if (!isset($_GET['type'])) {
+            return $this->json(null);
+        }
+
+        // Start creating SQL request
+        $t = @$_GET['type'];
+        $req = 'type=\'' . $t . '\'';
+
+        // A request for user posts also requires userid
+        if ($t === 'userpost') {
+
+            if (!isset($_GET['uid'])) {
+                return $this->json(null);
+            }
+
+            $req .= ' AND author=' . @$_GET['uid'];
+        }
+
+        // Retreive posts from DB
         try {
-            return $this->json(Post::getAll("type='NEWS'", [], "id DESC"));
+            $data = Post::getAll($req, [], 'id DESC');
+            return $this->json($data);
         } catch (Exception $e) {
-            return null;
+            return $this->json(null);
         }
     }
 
-    public function images()
+    public function get_images()
     {
         try {
             return $this->json(Image::getAll());
@@ -122,39 +192,65 @@ class HomeController extends AControllerBase
 
     public function vote()
     {
-        $id = $_GET["id"];
-        $t = $_GET["t"];
+        $pid = @$_GET["pid"];
+        $uid = @$_GET["uid"];
+        $t = @$_GET["t"];
+
+        $vote = [];
 
         try {
-            $post = Post::getOne($id);
+            $vote = Vote::getAll('post=' . $pid . ' AND user=' . $uid);
         } catch (Exception $e) {
             return null;
         }
 
-        switch ($t) {
-            case "u":
-                $post->upvote();
-                break;
-            case "d":
-                $post->downvote();
-                break;
-            case "ru":
-                $post->removeUpvote();
-                break;
-            case "rd":
-                $post->removeDownvote();
-                break;
-            default:
+        if (count($vote) === 0) {
+
+            if ($t === '0') {
+                return $this->json($vote);
+            }
+
+            $vote = new Vote(
+                $pid,
+                $uid,
+                $t
+            );
+
+            try {
+                $vote->saveCK(true, 'post', $pid, 'user', $uid);
+            } catch (Exception $e) {
                 return null;
+            }
+        } else {
+            $vote = $vote[0];
+
+            if ($t === '0') {
+                try {
+                    $vote->deleteCK('post', $pid, 'user', $uid);
+                } catch (Exception $e) {
+                    return null;
+                }
+            } else {
+                $vote->setType($t);
+                try {
+                    $vote->saveCK(false, 'post', $pid, 'user', $uid);
+                } catch (Exception $e) {
+                    return null;
+                }
+            }
         }
 
+        return $this->json($vote);
+    }
+
+    public function get_votes()
+    {
         try {
-            $post->save();
+            $votes = Vote::getAll();
+            return $this->json($votes);
         } catch (Exception $e) {
             return null;
         }
-
-        return $this->json($post);
     }
 
 }

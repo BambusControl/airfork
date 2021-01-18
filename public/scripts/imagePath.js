@@ -13,7 +13,7 @@ class ImagePath
     async loadImages()
     {
         try {
-            let data = await ( await fetch("?c=home&a=images") ).json();
+            let data = await ( await fetch("?c=home&a=get_images") ).json();
             data.forEach(
                 (value) => {
                     this.imagePath[value.id] = value.path;

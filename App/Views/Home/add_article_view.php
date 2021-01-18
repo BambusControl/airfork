@@ -37,7 +37,7 @@
 
             <div class="form-group">
                 <label for="image">Obrázok:</label>
-                <input type="file" class="btn p-4 border<?= empty($data['error']['image']) ? '' : 'is-invalid' ?>" id="image" aria-describedby="image-warning" accept="image/*">
+                <input type="file" class="image-input btn p-4 border<?= empty($data['error']['image']) ? '' : 'is-invalid' ?>" id="image" aria-describedby="image-warning" accept="image/*">
                 <?= empty($data['error']['image']) ? '' :
                     '<small id="image-warning" class="form-text invalid-feedback">' . $data['error']['image'] . '</small>'
                 ?>

@@ -50,7 +50,7 @@ session_start(['read_and_close' => true]);
                     <ul class="navbar-nav">
 
                         <li class="nav-item">
-                            <a class="nav-link <?= @$_GET['a'] == 'index' ? 'active' : '' ?>" href="?c=home">Novinky</a>
+                            <a class="nav-link <?= @$_GET['a'] == 'index' ? 'active' : '' ?>" href="?c=home">Príspevky</a>
                         </li>
 
                         <li class="nav-item">
@@ -60,14 +60,6 @@ session_start(['read_and_close' => true]);
                         <li class="nav-item">
                             <a class="nav-link <?= @$_GET['a'] == 'airfields' ? 'active' : '' ?>" href="?c=home&a=airfields">Letiská</a>
                         </li>
-
-                        <?=
-                        isset($_SESSION['uid']) ? '
-                                <li class="nav-item">
-                                    <a class="nav-link" href="?c=home&a=userposts">Príspevky</a>
-                                </li>
-                            ' : '';
-                        ?>
 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle <?= @$_GET['c'] == 'account' ? 'active' : '' ?>" href="#" id="navbardrop" data-toggle="dropdown">

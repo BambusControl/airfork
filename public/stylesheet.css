@@ -35,11 +35,15 @@ div.post img {
     width: 100%;
     object-fit: cover;
     min-height: 30vh;
-    max-height: 50vh;
+    max-height: min(50vh, fit-content);
 }
 
 div.post div.card{
     margin-bottom: 2vh;
+}
+
+.image-input {
+    /*TODO*/
 }
 
 .max-height {
@@ -180,4 +184,122 @@ label.hoverable .tooltip::after {
 label.hoverable:hover .tooltip {
     visibility: visible;
     opacity: 1;
+}
+
+/* ------------------- */
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 33%;
+    height: 4vh;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    border-radius: 2vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 0, 0, 0.1);
+    /*-webkit-transition: .4s;*/
+    transition: 0.5s ease-in-out;
+}
+
+.slider:before {
+    position: absolute;
+    border-radius: 100%;
+    content: "";
+    height: calc(4vh - 12px);
+    width: calc(4vh - 12px);
+    /*left: calc(50% - 2vh - 25%);*/
+    left: 6px;
+    bottom: 6px;
+    background-color: white;
+    transition: 0.5s ease-in-out;
+}
+
+#first, #second {
+    font-size: 150%;
+    position: relative;
+    left: calc(4vh + 8px);
+    /*text-align: center;*/
+    margin: auto;
+}
+
+#second {
+    display: none;
+    /*float: right;*/
+    /*right: 8px;*/
+}
+
+/*#first::before {
+    left: 1px;
+    top: 1px;
+    width: 24px;
+    height: 24px;
+    background: var(--white);
+    border-radius: 50%;
+    z-index: 1;
+    transition: transform 0.3s;
+}
+
+#first::after {
+    top: 50%;
+    right: 8px;
+    width: 12px;
+    height: 12px;
+    transform: translateY(-50%);
+    background: url("visuals/icons/checkmark.svg");
+    background-size: 12px 12px;
+}
+
+#second {
+
+}*/
+
+/*.switches span:last-child::before {
+    left: 1px;
+    top: 1px;
+    width: 24px;
+    height: 24px;
+    background: var(--white);
+    border-radius: 50%;
+    z-index: 1;
+    transition: transform 0.3s;
+}
+
+.switches span:last-child::after {
+    top: 50%;
+    right: 8px;
+    width: 12px;
+    height: 12px;
+    transform: translateY(-50%);
+    background: url(uncheck-switcher.svg);
+    background-size: 12px 12px;
+}*/
+
+input:checked + .slider {
+    background-color: rgba(0, 0, 255, 0.1);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    /*transform: translateX(calc(54vw + 4px));*/
+    /*left: calc(50% - 2vh + 25%);*/
+    left: calc(100% - calc(4vh - 6px));
 }

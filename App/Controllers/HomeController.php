@@ -131,11 +131,6 @@ class HomeController extends AControllerBase
         return $this->html();
     }
 
-    public function userposts()
-    {
-        return $this->html();
-    }
-
     public function errorpage()
     {
         return $this->html();
@@ -154,11 +149,9 @@ class HomeController extends AControllerBase
         // A request for user posts also requires userid
         if ($t === 'userpost') {
 
-            if (!isset($_GET['uid'])) {
-                return $this->json(null);
+            if (isset($_GET['uid'])) {
+                $req .= ' AND author=' . @$_GET['uid'];
             }
-
-            $req .= ' AND author=' . @$_GET['uid'];
         }
 
         // Retreive posts from DB

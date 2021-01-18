@@ -4,7 +4,7 @@ $(document).ready(async function(){
     if (container != null) {
         let user = await (await fetch("?c=account&a=logged_in")).json();
         let posts = new PostHandler(container, user);
-        await posts.load();
+        await posts.load(true);
     }
 });
 
@@ -15,30 +15,44 @@ class PostHandler
     user;
     voteHandler;
     type;
+    dataGet;
 
     constructor(container, user)
     {
+        this.toggleType = this.toggleType.bind(this);
         this.createNewsPost = this.createNewsPost.bind(this);
         this.load = this.load.bind(this);
         this.getVoteBlock = this.getVoteBlock.bind(this);
 
+        let parts = window.location.search.substr(1).split("&");
+        this.dataGet = {};
+        for (let i = 0; i < parts.length; i++) {
+            let temp = parts[i].split("=");
+            this.dataGet[decodeURIComponent(temp[0])] = decodeURIComponent(temp[1]);
+        }
+
         this.postContainer = container;
+        this.type = container.title;
         this.path = new ImagePath();
         this.user = user;
-        this.type = container.title;
-        // alert("?c=home&a=get_all_posts&type=" + this.type + "&uid=" + this.user.uid );
+
         if (user != null) {
             this.voteHandler = new VoteHandler(user.uid);
         } else {
             this.voteHandler = null;
         }
-        // setInterval(this.getNews, 5000); // kazdych 5 s reloadne novinky
+
+        if (this.type === "article") {
+            let sw = document.getElementById("article-switch");
+            sw.onchange = () => this.toggleType($(sw));
+        }
     }
 
-    async load()
+    async load(all)
     {
         try {
-            let data = await ( await fetch("?c=home&a=get_all_posts&type=" + this.type + "&uid=" + this.user.uid ) ).json();
+            console.log("?c=home&a=get_all_posts&type=" + this.type + (this.dataGet.a === "profile" ? ("&uid=" + this.user.uid) : ""));
+            let data = await ( await fetch("?c=home&a=get_all_posts&type=" + this.type + (this.dataGet.a === "profile" ? ("&uid=" + this.user.uid) : ""))).json();
             await this.voteHandler.load();
             await this.path.loadImages();
 
@@ -46,6 +60,29 @@ class PostHandler
         } catch (e) {
             console.error("Error PostHandler::load() " + e.message);
         }
+    }
+
+    async toggleType(sw)
+    {
+        if (this.type === "article") {
+            this.type = "userpost";
+        } else {
+            this.type = "article";
+        }
+
+        sw.prop("disabled", true);
+        // sw.addProp("disabled", )
+
+        $("#first").toggle();
+        $("#second").toggle();
+
+        this.postContainer.innerHTML = "";
+        try {
+            await this.load(true);
+        } catch (e) {
+            console.error("Error PostHandler::toggleType() " + e.message);
+        }
+        sw.prop("disabled", false);
     }
 
     createNewsPost(post)

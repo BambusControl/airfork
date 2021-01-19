@@ -9,6 +9,7 @@ use App\Models\Image;
 use App\Models\Post;
 use App\Models\Vote;
 use Exception;
+use http\Message;
 
 class HomeController extends AControllerBase
 {
@@ -30,7 +31,7 @@ class HomeController extends AControllerBase
         return $this->html();
     }
 
-    public function add_article()
+    public function add_article()   // TODO rename
     {
         // Check if a user is logged in
         if (!AccountController::is_logged_in()) {
@@ -69,39 +70,42 @@ class HomeController extends AControllerBase
         }
 
         // Image
-        if ( isset($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK ) {
+        $imageId = null;
+        if ( isset($_FILES['image']['name'])) {
 
-            $tmpPath = $_FILES['image']['tmp_name'];
-            $filename = explode(".", $_FILES['image']['name']);
-            $extension = strtolower(end($filename));
+            if ($_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $tmpPath = $_FILES['image']['tmp_name'];
+                $filename = explode(".", $_FILES['image']['name']);
+                $extension = strtolower(end($filename));
 
-            // TODO hash img
-            md5_file($tmpPath);
+                // TODO hash img
+                md5_file($tmpPath);
 
-            // 'Random' filename
-            $filename = md5($filename . time()) . '.' . $extension;
-            $destPath = 'public/visuals/images/' . $filename;
+                // 'Random' filename
+                $filename = md5($filename . time()) . '.' . $extension;
+                $destPath = 'public/visuals/images/' . $filename;
 
-            if(move_uploaded_file($tmpPath, $destPath))
-            {
-                // Create DB entry
-                $image = new Image(
-                    null,
-                    $uid,
-                    $destPath
-                );
+                if(move_uploaded_file($tmpPath, $destPath))
+                {
+                    // Create DB entry
+                    $image = new Image(
+                        null,
+                        $uid,
+                        $destPath
+                    );
 
-                // Update database
-                try {
-                    $imageId = $image->save();
-                } catch (Exception $e) {
+                    // Update database
+                    try {
+                        $imageId = $image->save();
+                    } catch (Exception $e) {
+                        $errors['image'] = 'Image could not be uploaded';
+                    }
+                } else {
                     $errors['image'] = 'Image could not be uploaded';
                 }
             } else {
                 $errors['image'] = 'Image could not be uploaded';
             }
-        } else {
-            $errors['image'] = 'Image could not be uploaded';
         }
 
         // If any errors occurred
@@ -244,6 +248,120 @@ class HomeController extends AControllerBase
         } catch (Exception $e) {
             return null;
         }
+    }
+
+    public function modify_post()
+    {
+        if (!AccountController::is_logged_in()) {
+            header('Location: ?c=account&a=login');
+            exit(0);
+        }
+
+        session_start(['read_and_close' => true]);
+        $uid = $_SESSION['uid'];
+
+        // Check if user submitted a form
+        if (!isset($_POST['id'])) {
+            return $this->json(null);
+        }
+
+        // Inputs
+        $id = $_POST['id'];
+        $title = $_POST['title'];
+        $text = $_POST['text'];
+
+        // Check all inputs
+        $errors = [];
+
+        if (empty($title)) {
+            $errors['error'] = "Titulok nemôže byť prázdny!";
+        }
+
+        if (empty($text)) {
+            $errors['error'] = "Textové pole nemôže byť prázdne!";
+        }
+
+        // If any errors occurred
+        if (count($errors) !== 0) {
+            return $this->json($errors);
+        }
+
+        // Get the post from DB
+        try {
+            $post = Post::getOne($id);
+        } catch (Exception $e) {
+            $errors['error'] = $e->getMessage();
+            return $this->json($errors);
+        }
+
+        // Check if uid == post author id
+        if ($post->getAuthor() != $uid) {
+            $errors['error'] = "Can't modify post, because user " . $uid . " is not author of this post";
+            return $this->json($errors);
+        }
+
+        // No data changed
+        if ($post->getContent() === $text && $post->getTitle() === $title) {
+            return $this->json($post);
+        }
+
+        // Inputs are ok - update the post
+        $post->setTitle($title);
+        $post->setContent($text);
+
+        try {
+            $post->save();
+        } catch (Exception $e) {
+            $_POST['error'] = $e->getMessage();
+            return $this->json($errors);
+        }
+
+        return $this->json($post);
+    }
+
+    public function remove_post() {
+        if (!AccountController::is_logged_in()) {
+            header('Location: ?c=account&a=login');
+            exit(0);
+        }
+
+        session_start(['read_and_close' => true]);
+        $uid = $_SESSION['uid'];
+        $is_admin = $_SESSION['is_admin'];
+
+        $errors = [];
+
+        if (!isset($_GET['pid'])) {
+            $errors['error'] = "Cannot delete post, post doesn't exist";
+            return $this->json($errors);
+        }
+
+        $pid = $_GET['pid'];
+
+        // Get the post from DB
+        try {
+            $post = Post::getOne($pid);
+        } catch (Exception $e) {
+            $errors['error'] = $e->getMessage();
+            return $this->json($errors);
+        }
+
+        // Check if uid == post author id or if its an admin
+        if ($is_admin || $post->getAuthor() != $uid) {
+            $errors['error'] = "Can't modify post, because user " . $uid . " is not author of this post";
+            return $this->json($errors);
+        }
+
+        // Delete the post from DB
+        try {
+            $post->delete();
+        } catch (Exception $e) {
+            $errors['error'] = $e->getMessage();
+            return $this->json($errors);
+        }
+
+        return $this->json($errors);
+
     }
 
 }

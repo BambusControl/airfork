@@ -223,11 +223,11 @@ class AccountController extends AControllerBase
 
     public function logged_in()
     {
-        $str = [];
-        $str['logged_in'] = $this->is_logged_in();
-        $str['uid'] = self::get_uid() . '';
-        $str = $this->json($str);
-        return $str;
+        session_start(['read_and_close' => true]);
+        if (!isset($_SESSION['logged_in'])) {
+            return $this->json(['logged_in' => false]);
+        }
+        return $this->json(@$_SESSION);
     }
 
     private function get_uid()
@@ -342,6 +342,7 @@ class AccountController extends AControllerBase
                     $_SESSION['logged_in'] = true;
                     $_SESSION['uid'] = $a->getId();
                     $_SESSION['username'] = $a->getUsername();
+                    $_SESSION['is_admin'] = $a->isAdmin() == 1;
 
                     session_commit();
 
@@ -357,6 +358,22 @@ class AccountController extends AControllerBase
     private function redirLogin(): void
     {
         header('Location: ?c=account&a=login');
+    }
+
+    public function get_user()
+    {
+        if (!isset($_GET['uid'])) {
+            return $this->json(null);
+        }
+
+        $uid = @$_GET['uid'];
+
+        try {
+            $user = Account::getOne($uid);
+            return $this->json($user);
+        } catch (Exception $e) {
+            $this->json($e);
+        }
     }
 
 }

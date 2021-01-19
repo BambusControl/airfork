@@ -35,8 +35,10 @@ div.post img {
     width: 100%;
     object-fit: cover;
     min-height: 30vh;
-    max-height: min(50vh, fit-content);
+    /*max-height: min(50vh, fit-content);*/
+    max-height: 50vh;
 }
+
 
 div.post div.card{
     margin-bottom: 2vh;
@@ -46,12 +48,22 @@ div.post div.card{
     /*TODO*/
 }
 
+div.card-header.post {
+    padding: 0.75rem 1rem;
+}
+
 .max-height {
     max-height: 80vh;
 }
 
 .overflow-h {
     overflow: hidden;
+}
+
+.post-details {
+    float: right;
+    opacity: 70%;
+    font-size: 70%;
 }
 
 .block {

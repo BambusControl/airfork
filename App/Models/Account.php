@@ -17,19 +17,9 @@ class Account extends Model
     protected $lastname;
     protected $date_of_birth;
     protected $gender;
+    protected $is_admin;
 
-    /**
-     * Account constructor.
-     * @param $id
-     * @param string $username
-     * @param string $email
-     * @param string $password
-     * @param string $firstname
-     * @param string $lastname
-     * @param string $date_of_birth
-     * @param string $gender
-     */
-    public function __construct($id = null, $username = '', $email = '', $password = '', $firstname = '', $lastname = '', $date_of_birth = '', $gender = '')
+    public function __construct($id = null, $username = '', $email = '', $password = '', $firstname = '', $lastname = '', $date_of_birth = '', $gender = '', $is_admin='')
     {
         $this->id = $id;
         $this->username = $username;
@@ -39,6 +29,7 @@ class Account extends Model
         $this->lastname = $lastname;
         $this->date_of_birth = $date_of_birth;
         $this->gender = $gender;
+        $this->is_admin = $is_admin;
     }
 
     static public function setDbColumns()
@@ -51,7 +42,8 @@ class Account extends Model
             'firstname',
             'lastname',
             'date_of_birth',
-            'gender'
+            'gender',
+            'is_admin'
         ];
     }
 
@@ -135,6 +127,14 @@ class Account extends Model
         }
 
         return $array;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function isAdmin()
+    {
+        return $this->is_admin;
     }
 
 }

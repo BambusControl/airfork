@@ -1,7 +1,3 @@
-<!-- News post loader script -->
-<script src="/public/scripts/imagePath.js"></script>
-<script src="/public/scripts/postHandler.js"></script>
-
 <!-- Locator -->
 <div class="container-fluid p-1 mb-2 border">
     <div class="container-xl">
@@ -31,15 +27,6 @@
                 </div>
             ' : ''
         ?>
-
-        <!--<div>
-            <label class="switch" for="article-switch" id="article-switch-label">
-                <input type="checkbox" id="article-switch">
-                <span class="slider"></span>
-                <span id="first">Oficálne novinky</span>
-                <span id="second">Používateľské príspevky</span>
-            </label>
-        </div>-->
 
         <div class="post" id="post-container" title="article">
 

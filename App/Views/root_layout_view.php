@@ -31,6 +31,13 @@ session_start(['read_and_close' => true]);
     <!-- My stylesheet -->
     <link rel="stylesheet" href="../../public/stylesheet.css">
 
+    <!-- My script -->
+    <script src="/public/scripts/ImagePath.js"></script>
+    <script src="/public/scripts/PostHandler.js"></script>
+    <script src="/public/scripts/VoteHandler.js"></script>
+    <script src="/public/scripts/script.js"></script>
+
+
     <!-- Tab title and logo -->
     <link rel="shortcut icon" href="../../public/visuals/favicon.ico" type="image/x-icon"/>
     <title>Letci Slovenska</title>

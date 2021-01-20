@@ -68,7 +68,7 @@ class AccountController extends AControllerBase
                     $_POST['firstname'],
                     $_POST['lastname'],
                     $_POST['date_of_birth'],
-                    $_POST['gender']
+                    isset($_POST['gender']) ? $_POST['gender'] : ''
                 );
 
                 $_POST['error'] = $this->create_or_update_account($account);
@@ -184,8 +184,9 @@ class AccountController extends AControllerBase
         if (isset($_POST['password']))
         {
             session_start(['read_and_close' => true]);
+            $uid = $_SESSION['uid'];
             try {
-                $account = Account::getOne($_SESSION['uid']);
+                $account = Account::getOne($uid);
             } catch (Exception $e) {
                 $this->redir_err();
                 exit(0);
@@ -193,6 +194,27 @@ class AccountController extends AControllerBase
 
             if ( password_verify($_POST['password'], $account->getPassword()) )
             {
+                // Get user posts
+                try {
+                    $posts = Post::getAll('author='. $uid);
+                } catch (Exception $e) {
+                    $this->redir_err();
+                    exit(0);
+                }
+
+                // Delete all user posts - images
+                if (count($posts) != 0) {
+                    foreach ($posts as $post) {
+                        try {
+                            $post->delete();
+                        } catch (Exception $e) {
+                            $this->redir_err();
+                            exit(0);
+                        }
+                    }
+                }
+
+                // Delete account
                 try {
                     $account->delete();
                 } catch (Exception $e) {
@@ -203,6 +225,7 @@ class AccountController extends AControllerBase
             }
             else
             {
+                // Bad password
                 return $this->html(['error_password' => 'Nesprávne heslo']);
             }
         }
@@ -210,7 +233,7 @@ class AccountController extends AControllerBase
         return $this->html();
     }
 
-    private function redir_err(): void
+    private function redir_err(): void // TODO from home
     {
         header('Location: ?c=home&a=errorpage');
     }
@@ -256,13 +279,38 @@ class AccountController extends AControllerBase
 
     private function create_or_update_account(Account $account) : array
     {
+        $errors = [];
+
+        // Input validation
+        if(!preg_match('~([A-Z]).+~', $account->getFirstname())) {
+            $errors['firstname'] = 'Meno musí začínať veľkým písmenom';
+        }
+
+        if(!preg_match('~([A-Z]).+~', $account->getLastname())) {
+            $errors['lastname'] = 'Priezvisko musí začínať veľkým písmenom';
+        }
+
+        $s = strtotime('+16 years', strtotime($account->getDateOfBirth()));
+        $n = time();
+        if($s > $n) {
+            $errors['date_of_birth'] = 'Pre registráciu musíte mať aspoň 16 rokov!';
+        }
+
+        if(empty($account->getGender())) {
+            $errors['gender'] = 'Vyberte si pohlavie!';
+        }
+
+        if(!preg_match('~^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])[^\n\r]{7,255}$~', $account->getPassword())) {
+            $errors['password'] = 'Heslo musí obsahovať aspoň 7 znakov, z toho aspoň jedno veľké písmeno, malé písmeno a číslo';
+        }
+
+        // Input validation against database
         try {
             $accounts = Account::getAll();
         } catch (Exception $e) {
             $this->redir_err();
             exit(0);
         }
-        $errors = [];
 
         $id_acc = null;
         if ( !is_null($account->getId()) ) {
@@ -275,36 +323,30 @@ class AccountController extends AControllerBase
             }
         }
 
-        // Input validation
         foreach ($accounts as $a)
         {
+            $x = function ($account1, $account2, &$errors) {
+                if($account1->getUsername() == $account2->getUsername())
+                {
+                    $errors['username'] = 'Tento username bol už použitý';
+                }
+
+                if($account1->getEmail() == $account2->getEmail())
+                {
+                    $errors['email'] = 'Tento email bol už registrovaný';
+                }
+            };
             if (is_null($id_acc)) {
                 // User doesn't exist - check validity against all
-                if ($a->getUsername() == $account->getUsername())
-                {
-                    $errors['username'] = 'Tento username bol už použitý';
-                }
-
-                if ($a->getEmail() == $account->getEmail())
-                {
-                    $errors['email'] = 'Tento email bol už registrovaný';
-                }
+                $x($a, $account, $errors);
             } elseif ($a->getId() !== $id_acc->getId()) {
                 // User already exists - check validity against all other accounts
-                if ($a->getUsername() == $account->getUsername())
-                {
-                    $errors['username'] = 'Tento username bol už použitý';
-                }
-
-                if ($a->getEmail() == $account->getEmail())
-                {
-                    $errors['email'] = 'Tento email bol už registrovaný';
-                }
+                $x($a, $account,$errors);
             }
 
         }
 
-        // Error in inputs  TODO better input checking also check all input fields
+        // Error in inputs
         if (!empty($errors))
         {
             return $errors;

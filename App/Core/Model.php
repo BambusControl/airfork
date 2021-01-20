@@ -13,8 +13,8 @@ use PDOException;
  */
 abstract class Model implements \JsonSerializable
 {
-    private static $connection = null;
-    private static $pkColumn = 'id';
+    protected static $connection = null;
+    protected static $pkColumn = 'id';
 
     abstract static public function setDbColumns();
 
@@ -24,7 +24,7 @@ abstract class Model implements \JsonSerializable
      * Gets a db columns from a model
      * @return mixed
      */
-    private static function getDbColumns()
+    protected static function getDbColumns()
     {
         return static::setDbColumns();
     }
@@ -33,7 +33,7 @@ abstract class Model implements \JsonSerializable
      * Reads the table name from a model
      * @return mixed
      */
-    private static function getTableName()
+    protected static function getTableName()
     {
         return static::setTableName();
     }
@@ -43,7 +43,7 @@ abstract class Model implements \JsonSerializable
      * @return null
      * @throws \Exception
      */
-    private static function connect()
+    protected static function connect()
     {
         self::$connection = Connection::connect();
     }
@@ -103,7 +103,7 @@ abstract class Model implements \JsonSerializable
                 }
                 return $tmpModel;
             } else {
-                throw new \Exception('Record not found!');
+                throw new \Exception('Record not found!', 1192021);
             }
         } catch (PDOException $e) {
             throw new \Exception('Query failed: ' . $e->getMessage());
@@ -147,7 +147,7 @@ abstract class Model implements \JsonSerializable
      * Saves the current model to DB (if model id is set, updates it, else creates a new model)
      * @return mixed
      */
-    public function saveCK($save, $col1, $key1, $col2, $key2)
+    public function saveCK(bool $saveNew, $col1, $key1, $col2, $key2)
     {
         if ($col1 == null || $key1 == null || $col2 == null || $key2 == null) {
             return;
@@ -158,7 +158,7 @@ abstract class Model implements \JsonSerializable
             foreach ($data as $key => &$item) {
                 $item = isset($this->$key) ? $this->$key : null;
             }
-            if ($save) {
+            if ($saveNew) {
                 $arrColumns = array_map(fn($item) => (':' . $item), array_keys($data));
                 $columns = implode(',', array_keys($data));
                 $params = implode(',', $arrColumns);

@@ -17,7 +17,7 @@ class HomeController extends AControllerBase
     public function index()
     {
         // Novinky
-
+//        Image::deleteUnlinkedFiles(); TODO
         return $this->html();
     }
 
@@ -69,39 +69,63 @@ class HomeController extends AControllerBase
             return $this->html($_POST);
         }
 
-        // Image
+        // Image TODO image file type check
         $imageId = null;
-        if ( isset($_FILES['image']['name'])) {
+        if ( isset($_FILES['image']['name']) && !empty($_FILES['image']['name'])) {
 
             if ($_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $tmpPath = $_FILES['image']['tmp_name'];
-                $filename = explode(".", $_FILES['image']['name']);
-                $extension = strtolower(end($filename));
+                $filename = $_FILES['image']['name'];
+                $nameArr = explode(".", $filename);
+                $extension = strtolower(end($nameArr));
 
-                // TODO hash img
-                md5_file($tmpPath);
+                // Check if the image is not already in the database
+                $filehash = md5_file($tmpPath);
+                $i = null;
+                try {
+                    $i = Image::getOne($filehash);
+                } catch (Exception $e) {
+                    // code 1192021 is for no record found
+                    if ($e->getCode() != 1192021) {
+                        $errors['image'] = 'Image could not be processed';
+                        $_POST['error'] = $errors;
+                        return $this->html($_POST);
+                    }
+                }
 
-                // 'Random' filename
-                $filename = md5($filename . time()) . '.' . $extension;
-                $destPath = 'public/visuals/images/' . $filename;
-
-                if(move_uploaded_file($tmpPath, $destPath))
-                {
-                    // Create DB entry
-                    $image = new Image(
-                        null,
-                        $uid,
-                        $destPath
-                    );
-
-                    // Update database
+                if ($i != null) {
+                    // Image already in DB
+                    $imageId = $i->getId();
                     try {
-                        $imageId = $image->save();
+                        $i->addReference();
                     } catch (Exception $e) {
-                        $errors['image'] = 'Image could not be uploaded';
+                        $errors['image'] = 'Image could not be processed';
                     }
                 } else {
-                    $errors['image'] = 'Image could not be uploaded';
+                    // Move image, add it to DB
+                    // 'Random' filename TODO
+                    $filename = md5($filename . time()) . '.' . $extension;
+                    $destPath = 'public/visuals/images/' . $filename;
+
+                    if(move_uploaded_file($tmpPath, $destPath))
+                    {
+                        // Create DB entry
+                        $image = new Image(
+                            $filehash,
+                            $uid,
+                            $destPath,
+                            1
+                        );
+
+                        // Update database
+                        try {
+                            $imageId = $image->save();
+                        } catch (Exception $e) {
+                            $errors['image'] = 'Image could not be uploaded';
+                        }
+                    } else {
+                        $errors['image'] = 'Image could not be uploaded';
+                    }
                 }
             } else {
                 $errors['image'] = 'Image could not be uploaded';
@@ -117,7 +141,7 @@ class HomeController extends AControllerBase
         // Inputs are ok - create the post
         $post = new Post(
             null,
-            'article',
+            $isArticle ? 'article' : 'userpost',
             $_SESSION['uid'],
             $_POST['title'],
             $_POST['text'],
@@ -126,12 +150,27 @@ class HomeController extends AControllerBase
         );
 
         try {
-            $post->save();
+            $pid = $post->save();
         } catch (Exception $e) {
+            $errors['image'] = 'Post could not be saved';
             $_POST['error'] = $errors;
-            $errors['image'] = 'Image could not be uploaded';
+            return $this->json($_POST);
         }
 
+        // Upvote the post
+        $vote = new Vote(
+            $pid,
+            $uid,
+            1
+        );
+
+        try {
+            $vote->saveCK(true,'post', $pid, 'user', $uid);
+        } catch (Exception $e) {
+            return $this->json(null);
+        }
+
+        header('Location: ?c=account&a=profile');
         return $this->html();
     }
 
@@ -167,16 +206,48 @@ class HomeController extends AControllerBase
         }
     }
 
+    public function get_post()
+    {
+        if (!isset($_GET['pid'])) {
+            // not enough parameters
+            return $this->json(null);
+        }
+
+        $pid = @$_GET['pid'];
+
+        // Retreive posts from DB
+        try {
+            $data = Post::getOne($pid);
+            return $this->json($data);
+        } catch (Exception $e) {
+            return $this->json(null);
+        }
+    }
+
     public function get_images()
     {
         try {
-            return $this->json(Image::getAll());
+            $data = Image::getAll();
+            return $this->json($data);
         } catch (Exception $e) {
             return null;
         }
     }
 
-    public function get_post()
+    public function get_image()
+    {
+        if (isset($_GET['id'])) {
+            try {
+                $data = Image::getOne($_GET['id']);
+                return $this->json($data);
+            } catch (Exception $e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /*public function get_post()
     {
         $id = $_GET["id"];
 
@@ -185,7 +256,7 @@ class HomeController extends AControllerBase
         } catch (Exception $e) {
             return null;
         }
-    }
+    }*/
 
     public function vote()
     {
@@ -242,11 +313,44 @@ class HomeController extends AControllerBase
 
     public function get_votes()
     {
+        $req = '';
+        if (isset($_GET['pid'])) {
+            $pid = @$_GET['pid'];
+            $req = 'post=' . $pid;
+        } elseif (isset($_GET['uid'])) {
+            $uid = @$_GET['uid'];
+            $req = 'user=' . $uid;
+        }
+
         try {
-            $votes = Vote::getAll();
+            $votes = Vote::getAll($req);
             return $this->json($votes);
         } catch (Exception $e) {
             return null;
+        }
+    }
+
+    public function get_vote()
+    {
+        if (!(isset($_GET['pid']) && (isset($_GET['uid'])))) {
+            // not enough parameters
+            return $this->json(null);
+        }
+
+        $pid = @$_GET['pid'];
+        $uid = @$_GET['uid'];
+        $req = 'post=' . $pid . ' AND user=' . $uid;
+
+        // Retreive posts from DB
+        try {
+            $data = Vote::getAll($req);
+            if (count($data) === 0) {
+                return $this->json(null);
+            } else {
+                return $this->json($data[0]);
+            }
+        } catch (Exception $e) {
+            return $this->json(null);
         }
     }
 
@@ -362,6 +466,11 @@ class HomeController extends AControllerBase
 
         return $this->json($errors);
 
+    }
+
+    public static function redirError ()
+    {
+        header('Location: ?c=home&a=errorpage');
     }
 
 }

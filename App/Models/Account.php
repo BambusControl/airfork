@@ -19,7 +19,7 @@ class Account extends Model
     protected $gender;
     protected $is_admin;
 
-    public function __construct($id = null, $username = '', $email = '', $password = '', $firstname = '', $lastname = '', $date_of_birth = '', $gender = '', $is_admin='')
+    public function __construct($id = null, $username = '', $email = '', $password = '', $firstname = '', $lastname = '', $date_of_birth = '', $gender = '', bool $is_admin=false)
     {
         $this->id = $id;
         $this->username = $username;
@@ -29,7 +29,7 @@ class Account extends Model
         $this->lastname = $lastname;
         $this->date_of_birth = $date_of_birth;
         $this->gender = $gender;
-        $this->is_admin = $is_admin;
+        $this->is_admin = $is_admin ? 1 : 0;
     }
 
     static public function setDbColumns()

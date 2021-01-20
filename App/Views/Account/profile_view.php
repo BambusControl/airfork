@@ -1,7 +1,3 @@
-<!-- News post loader script -->
-<script src="/public/scripts/imagePath.js"></script>
-<script src="/public/scripts/postHandler.js"></script>
-
 <?php /** @var array $data */ ?>
 
 <!-- Obsah -->

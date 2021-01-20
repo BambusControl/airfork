@@ -1,48 +1,9 @@
-
-
-$(document).ready(async function(){
-    let container = document.getElementById("post-container");
-
-    if (container != null) {
-        let spinner = new Spinner(container);
-
-        let user = await (await fetch("?c=account&a=logged_in")).json();
-        let posts = new PostHandler(container, user);
-        await posts.load(true);
-
-        spinner.remove();
-    }
-});
-
-class Spinner
-{
-    spinner;
-
-    constructor(container)
-    {
-        this.remove = this.remove.bind(this);
-
-        this.spinner = $("<div class=\"spinner-border\"></div>");
-        this.spinner.css("display", "block");
-        this.spinner.css("margin-left", "auto");
-        this.spinner.css("margin-right", "auto");
-        $(container).append(this.spinner);
-    }
-
-    remove()
-    {
-        this.spinner.remove();
-    }
-}
-
 class PostHandler
 {
     postContainer;
-    path;
     user;
     voteHandler;
     type;
-    dataGet;
 
     constructor(container, user)
     {
@@ -51,16 +12,8 @@ class PostHandler
         this.load = this.load.bind(this);
         this.getVoteBlock = this.getVoteBlock.bind(this);
 
-        let parts = window.location.search.substr(1).split("&");
-        this.dataGet = {};
-        for (let i = 0; i < parts.length; i++) {
-            let temp = parts[i].split("=");
-            this.dataGet[decodeURIComponent(temp[0])] = decodeURIComponent(temp[1]);
-        }
-
         this.postContainer = container;
         this.type = container.title;
-        this.path = new ImagePath();
         this.user = user;
 
         if (user != null) {
@@ -79,15 +32,12 @@ class PostHandler
         }
     }
 
-    async load(all) // TODO
+    async load(dataGet)
     {
         try {
-            let input = "?c=home&a=get_all_posts&type=" + this.type + (this.dataGet.a === "profile" ? ("&uid=" + (this.dataGet.uid != null ? this.dataGet.uid : this.user.uid)) : "");
-            // console.log(input); // TODO
-            let res = await fetch(input);
-            let data = await res.json();
-            await this.voteHandler.load();
-            await this.path.loadImages();
+            let input = "?c=home&a=get_all_posts&type=" + this.type + (dataGet.a === "profile" ? ("&uid=" + (dataGet.uid != null ? dataGet.uid : this.user.uid)) : "");
+            let data = await ( await fetch(input) ).json();
+            // await this.voteHandler.load();
 
             data.forEach(this.createNewsPost);
         } catch (e) {
@@ -111,18 +61,19 @@ class PostHandler
         this.postContainer.innerHTML = "";
         let spinner = new Spinner(this.postContainer);
         try {
-            await this.load(true);
+            this.load(_GET()).then(() => {
+                spinner.remove();
+                checkbox.prop("disabled", false);
+            });
         } catch (e) {
             console.error("Error PostHandler::toggleType() " + e.message);
         }
-        spinner.remove();
-        checkbox.prop("disabled", false);
     }
 
     createNewsPost(post)
     {
         let header = this.generateHeader(post);
-        let image = this.getImage(post);
+        let image = ImagePath.getImgAsync(post.image);
         let body = this.generateBody(post);
         let footer = this.generateFooter();
 
@@ -358,20 +309,6 @@ class PostHandler
         return cardBody;
     }
 
-    getImage(post)
-    {
-        if (post.image != null) {   // TODO expand image
-            let image = this.path.getById(post.image);
-            let img = document.createElement("img");
-            img.className = "card-img-top";
-            img.src = image.path;
-            img.alt = image.alt;
-            return img;
-            // card.appendChild(img);
-        }
-        return null;
-    }
-
     getVoteBlock(post)
     {
         // Voting block
@@ -380,158 +317,47 @@ class PostHandler
         voteBlock.id = post.id;
 
         // Check if user voted on this post
-        let userVote = 0;
-        if (this.voteHandler != null) {
-            userVote = this.voteHandler.userVote(voteBlock.id);
-            // alert(voteBlock.id + '   ' + userVote.type);
-            if (userVote != null) {
-                userVote = parseInt(userVote.type, 10);
+        this.voteHandler.userVote(voteBlock.id).then(
+            vote => {
+                // Create voting system and append to voteBlock
+                if (vote != null) {
+                    console.log("vote " + vote);
+                    vote = parseInt(vote.type, 10);
+                }
+
+                // Upvote button
+                let upvoteArrow = document.createElement("i");
+                upvoteArrow.className = "fas fa-chevron-up";
+                let upvote = document.createElement("button");
+                upvote.type = "button";
+                upvote.className = "btn-upvote outl-n mr-1" + (vote === 1 ? " upvoted" : "");
+                upvote.onclick = () => this.voteHandler.vote($(upvote));
+                upvote.appendChild(upvoteArrow);
+
+                // Downvote button
+                let downvoteArrow = document.createElement("i");
+                downvoteArrow.className = "fas fa-chevron-down";
+                let downvote = document.createElement("button");
+                downvote.type = "button";
+                downvote.className = "btn-downvote outl-n ml-1" + (vote === -1 ? " downvoted" : "");
+                downvote.onclick = () => this.voteHandler.vote($(downvote));
+                downvote.appendChild(downvoteArrow);
+
+                // Vote counter
+                let count = document.createElement("span");
+                count.className = "vote-counter";
+                let s = new Spinner(count, true, true, true);
+                this.voteHandler.voteCount(voteBlock.id).then(
+                    c => {
+                        count.innerText = c;
+                        s.remove();
+                    }
+                );    // TODO string format
+
+                voteBlock.append(upvote, count, downvote);
             }
+        );
 
-        }
-
-        // Upvote button
-        let upvoteArrow = document.createElement("i");
-        upvoteArrow.className = "fas fa-chevron-up";
-        let upvote = document.createElement("button");
-        upvote.type = "button";
-        upvote.className = "btn-upvote outl-n" + (userVote === 1 ? " upvoted" : "");
-        upvote.onclick = () => this.voteHandler.vote($(upvote));
-        upvote.appendChild(upvoteArrow);
-
-        // Downvote button
-        let downvoteArrow = document.createElement("i");
-        downvoteArrow.className = "fas fa-chevron-down";
-        let downvote = document.createElement("button");
-        downvote.type = "button";
-        downvote.className = "btn-downvote outl-n" + (userVote === -1 ? " downvoted" : "");
-        downvote.onclick = () => this.voteHandler.vote($(downvote));
-        downvote.appendChild(downvoteArrow);
-
-        // Vote counter
-        let count = document.createElement("span");
-        count.className = "vote-counter mlr-1";
-        count.innerText = this.voteHandler.voteCount(voteBlock.id);    // TODO string format
-
-        voteBlock.append(upvote, count, downvote);
         return voteBlock;
-    }
-}
-
-class VoteHandler
-{
-    uid;
-    userVotes;
-    allVotes;
-
-    constructor(userId)
-    {
-        this.uid = userId;
-        this.userVotes = [];
-        this.load = this.load.bind(this);
-        this.userVote = this.userVote.bind(this);
-        this.vote = this.vote.bind(this);
-        this.voteCount = this.voteCount.bind(this);
-    }
-
-    async load()
-    {
-        try {
-            this.allVotes = await (await fetch("?c=home&a=get_votes")).json();
-        } catch (e) {
-            console.error("Error VoteHandler::load() " + e.message);
-        }
-
-        for (let vote of this.allVotes) {
-
-            if (vote.user === this.uid) {
-                this.userVotes.push(vote);
-            }
-        }
-    }
-
-    userVote(postId)
-    {
-        for (let vote of this.userVotes) {
-            if (vote.post === postId) {
-                return vote;
-            }
-        }
-        return null;
-    }
-
-    async vote(voteBtn)
-    {
-        // Get id of the post
-        let pid = voteBtn.parent()[0].id;
-        let request, voteCount, otherVote;
-
-        if (voteBtn.hasClass("btn-upvote")) {
-            // Upvote
-
-            // Check for other vote button
-            otherVote = voteBtn.next().next();
-            if (otherVote.hasClass("downvoted")) {
-                otherVote.removeClass("downvoted");
-                request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=" + "0";
-                try {
-                    await fetch(request);
-                } catch (e) {
-                    console.error("Error PostHandler::vote(), check upvote button, " + e.message);
-                }
-            }
-
-            // Update appearance
-            voteBtn.toggleClass("upvoted");
-
-            // Update database
-            request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=" + (voteBtn.hasClass("upvoted") ? "1" : "0");
-
-            voteCount = voteBtn.next();
-        } else {
-            // Downvote
-
-            // Check for other vote button
-            otherVote = voteBtn.prev().prev(); // TODO
-            if (otherVote.hasClass("upvoted")) {
-                otherVote.removeClass("upvoted");
-                request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=" + "0";
-                try {
-                    await fetch(request);
-                } catch (e) {
-                    console.error("Error PostHandler::vote(), check upvote button, " + e.message);
-                }
-            }
-
-            // Update appearance
-            voteBtn.toggleClass("downvoted");
-
-            // Update database
-            request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=" + (voteBtn.hasClass("downvoted") ? "-1" : "0");
-            voteCount = voteBtn.prev();
-        }
-
-        // get data from server
-        try {
-            await fetch(request);
-            await this.load();
-        } catch (e) {
-            console.error("Error PostHandler::vote(), couldn't get data from server: " + e.message);
-        }
-        let count = this.voteCount(pid);
-
-        // update counter
-        voteCount.text(count);
-    }
-
-    voteCount(postId) {
-        let c = 0;
-        for (let vote of this.allVotes) {
-            if (vote.post === postId) {
-                c += parseInt(vote.type, 10);
-            }
-        }
-        // alert(c);
-        return c;
     }
 }

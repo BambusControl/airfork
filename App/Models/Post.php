@@ -4,6 +4,7 @@ namespace App\Models;
 
 
 use App\Core\Model;
+use mysql_xdevapi\Exception;
 
 class Post extends Model
 {
@@ -91,6 +92,16 @@ class Post extends Model
     public function getContent()
     {
         return $this->content;
+    }
+
+    public function delete()
+    {
+        if ($this->image != null) {
+            $i = Image::getOne($this->image);
+            $i->delete();
+        }
+
+        parent::delete();
     }
 
 }

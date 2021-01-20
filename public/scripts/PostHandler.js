@@ -25,6 +25,7 @@ class PostHandler
         }
 
         this.imageHandler = new ImageHandler();
+        this.imageHandler.loadAll();
 
         if (this.type === "article") {
             let btn = document.getElementById("article-switch");
@@ -45,7 +46,7 @@ class PostHandler
             request += "&type=" + this.type;
         }
 
-        let spinner = new Spinner(this.postContainer);
+        let spinner = new Spinner($(this.postContainer), true);
         fetch(request).then(
             j => j.json().then(
                 posts => {
@@ -164,7 +165,7 @@ class PostHandler
                 if (post.author == this.user.uid) {
                     let btnEdit = document.createElement("button");
                     btnEdit.className = "btn btn-sm btn-light text-primary";
-                    btnEdit.innerText = "Edit";
+                    btnEdit.innerText = "Upraviť";
                     btnEdit.setAttribute("data-state", "0");
                     btnEdit.type = "submit";
                     btnEdit.onclick = () => this.onEdit(btnEdit, cardHeader, title, post, error);
@@ -175,7 +176,7 @@ class PostHandler
                 let btnDelete = document.createElement("button");
                 btnDelete.className = "btn btn-sm btn-light text-danger";
                 btnDelete.setAttribute("data-state", "0");
-                btnDelete.innerText = "Delete";
+                btnDelete.innerText = "Vymazať";
                 btnDelete.onclick = () => this.onDelete(btnDelete, cardHeader, title, post, error);
 
                 hcontainer.append(btnDelete, error);
@@ -191,11 +192,25 @@ class PostHandler
         let state = parseInt(btnDelete.getAttribute("data-state"));
         let b = $(btnDelete);
 
-        if (state === 0) {
+        if (state === -1) {
+            // Reset button
             state++;
             b.toggleClass("btn-light text-danger btn-danger");
-            b.text("Vymazať");
+            b.text("Vymazať")
+        } else if (state === 0) {
+            // Do you really want to delete this post?
+            state++;
+            b.toggleClass("btn-light text-danger btn-danger");
+            let w = b.css("width");
+            b.text("Naozaj?").css("width", w);
+
+            // Reset button after 5 seconds
+            setTimeout(() => {
+                b.attr("data-state", -1);
+                this.onDelete(btnDelete, cardHeader, title, post, error);
+            }, 5000);
         } else {
+            // Delete the post
             let spinner = $("<div class=\"spinner-grow spinner-grow-sm\"></div>");
             $(title).before(spinner);
             $.get(

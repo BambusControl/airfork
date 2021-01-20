@@ -211,22 +211,19 @@ label.hoverable:hover .tooltip {
 
 /* ------------------- */
 
-/* The switch - the box around the slider */
 .switch {
     position: relative;
     display: inline-block;
-    width: 33%;
+    width: 100%;
     height: 4vh;
 }
 
-/* Hide default HTML checkbox */
 .switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-/* The slider */
 .slider {
     position: absolute;
     cursor: pointer;
@@ -246,7 +243,6 @@ label.hoverable:hover .tooltip {
     content: "";
     height: calc(4vh - 12px);
     width: calc(4vh - 12px);
-    /*left: calc(50% - 2vh - 25%);*/
     left: 6px;
     bottom: 6px;
     background-color: white;
@@ -256,62 +252,16 @@ label.hoverable:hover .tooltip {
 #first, #second {
     font-size: 150%;
     position: relative;
-    left: calc(4vh + 8px);
-    /*text-align: center;*/
-    margin: auto;
+}
+
+#first {
+    left: calc(50% - 4em);
 }
 
 #second {
     display: none;
-    /*float: right;*/
-    /*right: 8px;*/
+    left: calc(50% - 5.5em);
 }
-
-/*#first::before {
-    left: 1px;
-    top: 1px;
-    width: 24px;
-    height: 24px;
-    background: var(--white);
-    border-radius: 50%;
-    z-index: 1;
-    transition: transform 0.3s;
-}
-
-#first::after {
-    top: 50%;
-    right: 8px;
-    width: 12px;
-    height: 12px;
-    transform: translateY(-50%);
-    background: url("visuals/icons/checkmark.svg");
-    background-size: 12px 12px;
-}
-
-#second {
-
-}*/
-
-/*.switches span:last-child::before {
-    left: 1px;
-    top: 1px;
-    width: 24px;
-    height: 24px;
-    background: var(--white);
-    border-radius: 50%;
-    z-index: 1;
-    transition: transform 0.3s;
-}
-
-.switches span:last-child::after {
-    top: 50%;
-    right: 8px;
-    width: 12px;
-    height: 12px;
-    transform: translateY(-50%);
-    background: url(uncheck-switcher.svg);
-    background-size: 12px 12px;
-}*/
 
 input:checked + .slider {
     background-color: rgba(0, 0, 255, 0.1);
@@ -322,7 +272,5 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-    /*transform: translateX(calc(54vw + 4px));*/
-    /*left: calc(50% - 2vh + 25%);*/
     left: calc(100% - calc(4vh - 6px));
 }

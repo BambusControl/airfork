@@ -16,7 +16,22 @@
             <?php include "common/register_form_view.php" ?>
             <small class="text-muted">Pre zmenu hesla označte štvorček</small>
 
-            <hr class="my-4">
+            <?=
+                $_SESSION['is_admin'] === true ? '' : '
+                    <hr class="my-4">
+
+                    <h4 class="font-weight-normal mb-4 mt-2">Pokročilé</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <a class="btn btn-outline-danger" href="?c=account&a=delete_account">Vymazať účet</a>
+                            <small class="text-muted p-2">Vymazanie účtu je nenávratná operácia!</small>
+        
+                        </div>
+                    </div>
+                '
+            ?>
+
+            <!--<hr class="my-4">
 
             <h4 class="font-weight-normal mb-4 mt-2">Pokročilé</h4>
             <div class="form-row">
@@ -25,7 +40,7 @@
                     <small class="text-muted p-2">Vymazanie účtu je nenávratná operácia!</small>
 
                 </div>
-            </div>
+            </div>-->
 
         </div>
     </div>

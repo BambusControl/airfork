@@ -5,10 +5,30 @@ class ImageHandler
     constructor()
     {
         this.imagePath = [];
-        // this.getImgAsync = this.getImgAsync.bind(this);
     }
 
-    getImgAsync(id) {
+    async loadAll() {
+        fetch("?c=home&a=get_images").then(
+            j => j.json().then(
+                imgs => imgs.forEach(
+                    img => {
+                        if (this.imagePath[img.id] == null) {
+                            this.imagePath[img.id] = img.path;
+                        }
+                    }
+                )
+            )
+        );
+
+        /*let imgs = await ( await fetch("?c=home&a=get_images") ).json();
+        imgs.forEach(
+            image => {
+                this.imagePath[image.id] = image.path;
+            }
+        );*/
+    }
+
+    getImgAsync(id) {   // TODO rename
         if (id == null) {
             return null;
         }

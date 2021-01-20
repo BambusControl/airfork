@@ -50,7 +50,7 @@
                 <img class="img-preview" src="../../../public/visuals/airplanes/a320.jpg" alt="image">
                 <div class="card-body">
                     <h4 class="card-title">Airbus A320-200</h4>
-                    <p class="card-text"></p>
+                    <p class="card-text">Jedno z najrevolučnejších dopravných prúdových lietadiel súčastnej doby, nasledovník Boeing 727. Toto lietadlo dosiahlo o 50% nižšiu spotrebu, zavedený bol v roku 1987 s prvým úplne digitálnym pilotným systémom. Dva prúdové motory, každý s ťahom 98-120 kN umožnili cestovnú rýchlosť až 829 km/h pričom mali dosah až 6112 km. </p>
                 </div>
             </div>
 
@@ -58,6 +58,7 @@
                 <img class="img-preview" src="../../../public/visuals/airplanes/diamond_da40.jpg" alt="image">
                 <div class="card-body">
                     <h4 class="card-title">Diamond Aircraft DA40</h4>
+                    <p class="card-text">Toto ľahké lietadlo je dobré vo všetkom. S váhou 1150 kg a motorom s výkonom 135 kw, je let záživný ale nie príliš divoký. Do lietadla sa zmestia 3 pasažieri plus pilot, takže sa dá aj 'prakticky' využiť. Rýhlosťou 279 km/h si preletíte až 1130 km.</p>
                 </div>
             </div>
 
@@ -65,6 +66,7 @@
                 <img class="img-preview" src="../../../public/visuals/airplanes/sling_LSA.jpg" alt="image">
                 <div class="card-body">
                     <h4 class="card-title">Sling LSA</h4>
+                    <p class="card-text">Pre tých, ktorý chcú viac adrenalínu oproti výhľadom z okna lietadla je tu Sling. S váhou okolo 600 kg a motorom o výkone 75kw je toto ľahké športové lietadlo ideálne aj pre kutilov keďže je nasledovníkom protoypu a má veľa možností modifikácie.</p>
                 </div>
             </div>
 

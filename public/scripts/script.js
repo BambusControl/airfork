@@ -2,13 +2,12 @@ $(document).ready(async function(){
     let container = document.getElementById("post-container");
 
     if (container != null) {
-        let spinner = new Spinner(container);
         let user = await (await fetch("?c=account&a=logged_in")).json();
 
         let posts = new PostHandler(container, user);
-        await posts.load(_GET);
-
-        spinner.remove();
+        let dataGet = _GET();
+        await posts.load(dataGet);
+        setInterval(posts.load, 60000, dataGet);
     }
 });
 
@@ -39,6 +38,7 @@ class Spinner
             this.spinner.css("margin-left", "auto");
             this.spinner.css("margin-right", "auto");
         }
+
         $(container).append(this.spinner);
     }
 

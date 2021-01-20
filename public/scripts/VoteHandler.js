@@ -43,7 +43,7 @@ class VoteHandler
         }
     }
 
-    async vote(voteBtn)
+    async vote(voteBtn) // TODO $_POST
     {
         // Get id of the post
         let pid = voteBtn.parent()[0].id;
@@ -55,25 +55,39 @@ class VoteHandler
         // Check for other vote button
         let otherVote = isUpvote ? voteBtn.next().next() : voteBtn.prev().prev();
         if (otherVote.hasClass(className[!isUpvote])) {
-            // Other vote button was clicked, remove the vote
+            // Other vote button was clicked, unclick the button
             otherVote.removeClass(className[!isUpvote]);
-            request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=" + "0";
+            /*request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=" + "0";
             await fetch(request);
+            request = "?c=home&a=vote";
+            $.post(request, { pid : pid, uid : this.uid, t : 0 });*/
         }
 
         // Update button appearance
         voteBtn.toggleClass(className[isUpvote])
 
         // Update database
-        request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=";
-        request += voteBtn.hasClass(className[isUpvote]) ? (isUpvote ? "1" : "-1") : "0";
+        // request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=";
+        // request += voteBtn.hasClass(className[isUpvote]) ? (isUpvote ? "1" : "-1") : "0";
+        request = "?c=home&a=vote";
 
         let voteCount = isUpvote ? voteBtn.next() : voteBtn.prev();
 
-        // Update count from server
-        fetch(request).then(() => {
+        // Vote and update count from server
+        /*fetch(request).then(() => {
             this.voteCount(pid, true).then(count => voteCount.text(count));
-        });
+        });*/
+        $.post(
+            request,
+            {
+                pid : pid,
+                uid : this.uid,
+                t : voteBtn.hasClass(className[isUpvote]) ? (isUpvote ? 1 : -1) : 0
+            },
+            () => {
+                this.voteCount(pid, true).then(count => voteCount.text(count));
+            }
+        )
     }
 
     async voteCount(pid, forceUpdate = false)

@@ -29,7 +29,7 @@ class HomeController extends AControllerBase
         return $this->html();
     }
 
-    public function add_article()   // TODO rename
+    public function add_post()   // TODO rename
     {
         // Check if a user is logged in
         if (!AccountController::is_logged_in()) {
@@ -203,7 +203,7 @@ class HomeController extends AControllerBase
             $data = Post::getAll($request, [], 'id DESC');
             return $this->json($data);
         } catch (Exception $e) {
-            return $this->json(null);
+            return $this->json(['error' => 'Error retreiving data from database']);
         }
     }
 
@@ -211,7 +211,7 @@ class HomeController extends AControllerBase
     {
         if (!isset($_GET['pid'])) {
             // not enough parameters
-            return $this->json(null);
+            return $this->json(['error' => 'Missing parameters']);
         }
 
         $pid = @$_GET['pid'];
@@ -221,7 +221,7 @@ class HomeController extends AControllerBase
             $data = Post::getOne($pid);
             return $this->json($data);
         } catch (Exception $e) {
-            return $this->json(null);
+            return $this->json(['error' => 'Error retreiving data from database']);
         }
     }
 
@@ -231,7 +231,7 @@ class HomeController extends AControllerBase
             $data = Image::getAll();
             return $this->json($data);
         } catch (Exception $e) {
-            return null;
+            return $this->json(['error' => 'Error retreiving data from database']);
         }
     }
 
@@ -242,58 +242,69 @@ class HomeController extends AControllerBase
                 $data = Image::getOne($_GET['id']);
                 return $this->json($data);
             } catch (Exception $e) {
-                return null;
+                return $this->json(['error' => 'Error retreiving data from database']);
             }
         }
-        return null;
+        return $this->json(['error' => 'No image ID specified']);;
     }
 
     public function vote()
     {
-        $pid = @$_GET["pid"];
-        $uid = @$_GET["uid"];
-        $t = @$_GET["t"];
+        if (!(isset($_POST["pid"]) && isset($_POST["uid"]) && isset($_POST["t"]))) {
+            // Missing inputs
+            return $this->json(['error' => 'Missing parameters']);
+        }
+
+        $pid = @$_POST["pid"];
+        $uid = @$_POST["uid"];
+        $t = @$_POST["t"];
 
         $vote = [];
 
+        // Get the vote from database
         try {
             $vote = Vote::getAll('post=' . $pid . ' AND user=' . $uid);
         } catch (Exception $e) {
-            return null;
+            return $this->json(['error' => 'Error retreiving data from database']);
         }
 
         if (count($vote) === 0) {
-
+            // No vote found in database
             if ($t === '0') {
-                return $this->json($vote);
+                return $this->json(['error' => 'No vote to remove']);
             }
 
+            // Create vote
             $vote = new Vote(
                 $pid,
                 $uid,
                 $t
             );
 
+            // Save vote
             try {
                 $vote->saveCK(true, 'post', $pid, 'user', $uid);
             } catch (Exception $e) {
-                return null;
+                return $this->json(['error' => 'Error saving data to database']);
             }
         } else {
+            // Vote found in database
             $vote = $vote[0];
 
             if ($t === '0') {
+                // Remove vote
                 try {
                     $vote->deleteCK('post', $pid, 'user', $uid);
                 } catch (Exception $e) {
-                    return null;
+                    return $this->json(['error' => 'Error deleting data from database']);;
                 }
             } else {
+                // Update vote - change upvote <-> downvote
                 $vote->setType($t);
                 try {
                     $vote->saveCK(false, 'post', $pid, 'user', $uid);
                 } catch (Exception $e) {
-                    return null;
+                    return $this->json(['error' => 'Error saving data to database']);;
                 }
             }
         }
@@ -316,7 +327,7 @@ class HomeController extends AControllerBase
             $votes = Vote::getAll($req);
             return $this->json($votes);
         } catch (Exception $e) {
-            return null;
+            return $this->json(['error' => 'Error retreiving data from database']);
         }
     }
 
@@ -324,7 +335,7 @@ class HomeController extends AControllerBase
     {
         if (!(isset($_GET['pid']) && (isset($_GET['uid'])))) {
             // not enough parameters
-            return $this->json(null);
+            return $this->json(['error' => 'Missing parameters']);
         }
 
         $pid = @$_GET['pid'];
@@ -335,12 +346,12 @@ class HomeController extends AControllerBase
         try {
             $data = Vote::getAll($req);
             if (count($data) === 0) {
-                return $this->json(null);
+                return $this->json(['error' => 'No such record in database']);
             } else {
                 return $this->json($data[0]);
             }
         } catch (Exception $e) {
-            return $this->json(null);
+            return $this->json(['error' => 'Error retreiving data from database']);
         }
     }
 
@@ -356,7 +367,7 @@ class HomeController extends AControllerBase
 
         // Check if user submitted a form
         if (!isset($_POST['id'])) {
-            return $this->json(null);
+            $this->json(['error' => 'Form was not submitted']);
         }
 
         // Inputs

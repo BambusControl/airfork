@@ -258,7 +258,7 @@ class AccountController extends AControllerBase
         if ($this->is_logged_in()) {
             return @$_SESSION['uid'];
         }
-        return null;
+        return $this->json(['error' => 'User is not logged in']);
     }
 
     private function get_account_array()
@@ -405,7 +405,7 @@ class AccountController extends AControllerBase
     public function get_user()
     {
         if (!isset($_GET['uid'])) {
-            return $this->json(null);
+            return $this->json(['error' => 'Missing parameters']);
         }
 
         $uid = @$_GET['uid'];
@@ -414,7 +414,7 @@ class AccountController extends AControllerBase
             $user = Account::getOne($uid);
             return $this->json($user);
         } catch (Exception $e) {
-            $this->json($e);
+            $this->json(['error' => 'Error retreiving data from database']);
         }
     }
 

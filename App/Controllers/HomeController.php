@@ -9,7 +9,6 @@ use App\Models\Image;
 use App\Models\Post;
 use App\Models\Vote;
 use Exception;
-use http\Message;
 
 class HomeController extends AControllerBase
 {
@@ -17,7 +16,6 @@ class HomeController extends AControllerBase
     public function index()
     {
         // Novinky
-//        Image::deleteUnlinkedFiles(); TODO
         return $this->html();
     }
 
@@ -179,27 +177,30 @@ class HomeController extends AControllerBase
         return $this->html();
     }
 
-    public function get_all_posts()
+    public function get_posts()
     {
-        if (!isset($_GET['type'])) {
-            return $this->json(null);
-        }
+        $request = '';
+        if (isset($_GET['type'])) {
+            // Start creating SQL request
+            $t = @$_GET['type'];
+            $request = 'type=\'' . $t . '\'';
 
-        // Start creating SQL request
-        $t = @$_GET['type'];
-        $req = 'type=\'' . $t . '\'';
+            // A request for user posts also requires userid
+            if ($t === 'userpost') {
 
-        // A request for user posts also requires userid
-        if ($t === 'userpost') {
-
+                if (isset($_GET['uid'])) {
+                    $request .= ' AND author=' . @$_GET['uid'];
+                }
+            }
+        } else {
             if (isset($_GET['uid'])) {
-                $req .= ' AND author=' . @$_GET['uid'];
+                $request .= 'author=' . @$_GET['uid'];
             }
         }
 
         // Retreive posts from DB
         try {
-            $data = Post::getAll($req, [], 'id DESC');
+            $data = Post::getAll($request, [], 'id DESC');
             return $this->json($data);
         } catch (Exception $e) {
             return $this->json(null);
@@ -246,17 +247,6 @@ class HomeController extends AControllerBase
         }
         return null;
     }
-
-    /*public function get_post()
-    {
-        $id = $_GET["id"];
-
-        try {
-            return $this->json(Post::getOne($id));
-        } catch (Exception $e) {
-            return null;
-        }
-    }*/
 
     public function vote()
     {

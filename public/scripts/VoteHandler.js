@@ -1,94 +1,97 @@
 class VoteHandler
 {
     uid;
-    userVotes;
+    userVoteTypes;
     allVotes;
 
     constructor(userId)
     {
         this.uid = userId;
-        this.userVotes = [];
+        this.userVoteTypes = [];
         this.allVotes = [];
-        this.load = this.load.bind(this);
-        this.userVote = this.userVote.bind(this);
-        this.vote = this.vote.bind(this);
-        this.voteCount = this.voteCount.bind(this);
-        // alert("new");
     }
 
-    async load()
+    loadAll()
     {
-        alert("load");
-        try {
-            this.allVotes = await (await fetch("?c=home&a=get_votes")).json();
-        } catch (e) {
-            console.error("Error VoteHandler::load() " + e.message);
-        }
+        fetch("?c=home&a=get_votes").then(
+            j => j.json().then( votes => {
+                for (let vote of votes) {
+                    if (this.allVotes[vote.post] == null) {
+                        this.allVotes[vote.post] = [];
+                    }
+                    this.allVotes[vote.post][vote.user] = vote;
 
-        for (let vote of this.allVotes) {
-
-            if (vote.user == this.uid) {
-                this.userVotes[vote.post] = vote;
-            }
-        }
+                    if (vote.user == this.uid) {
+                        this.userVoteTypes[vote.post] = parseInt(vote.type, 10);
+                    }
+                }
+            })
+        );
     }
 
-    async userVote(pid)
+    async userVoteType(pid)
     {
-        if (this.userVotes[pid] == null) {
-            console.log("Vote not cached: " + pid + " " + this.uid);
+        if (this.userVoteTypes[pid] == null) {
+            // Get vote from server
             let vote = await (await fetch("?c=home&a=get_vote&pid=" + pid + "&uid=" + this.uid)).json()
-            this.userVotes[pid] = vote;
-            return vote;
+            this.userVoteTypes[pid] = vote == null ? 0 : parseInt(vote.type, 10);
+            return this.userVoteTypes[pid];
         } else {
-            console.log("Vote cached: + " + pid);
-            return this.userVotes[pid]
+            // Return vote from 'cache'
+            // console.log("Cached vote: pid = " + pid + ", vote = " + this.userVoteTypes[pid]);
+            return this.userVoteTypes[pid]
         }
     }
 
-    async vote(voteBtn) // TODO tidy
+    async vote(voteBtn)
     {
         // Get id of the post
         let pid = voteBtn.parent()[0].id;
-        let request, voteCount, otherVote;
+        let request = '';
 
         let isUpvote = voteBtn.hasClass("btn-upvote");
         let className = {true : "upvoted", false : "downvoted"};
 
         // Check for other vote button
-        otherVote = isUpvote ? voteBtn.next().next() : voteBtn.prev().prev();
+        let otherVote = isUpvote ? voteBtn.next().next() : voteBtn.prev().prev();
         if (otherVote.hasClass(className[!isUpvote])) {
+            // Other vote button was clicked, remove the vote
             otherVote.removeClass(className[!isUpvote]);
             request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=" + "0";
-            await fetch(request); // TODO
+            await fetch(request);
         }
 
+        // Update button appearance
         voteBtn.toggleClass(className[isUpvote])
 
         // Update database
         request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=";
         request += voteBtn.hasClass(className[isUpvote]) ? (isUpvote ? "1" : "-1") : "0";
 
-        voteCount = isUpvote ? voteBtn.next() : voteBtn.prev();
+        let voteCount = isUpvote ? voteBtn.next() : voteBtn.prev();
 
-        // update count from server
+        // Update count from server
         fetch(request).then(() => {
-            this.voteCount(pid, true).then(count => {
-                voteCount.text(count);
-            });
+            this.voteCount(pid, true).then(count => voteCount.text(count));
         });
     }
 
-    async voteCount(pid, forceUpdate = false) {
+    async voteCount(pid, forceUpdate = false)
+    {
         if (this.allVotes[pid] == null || forceUpdate) {
+            // Get vote from server
             let votes =  await ( await fetch("?c=home&a=get_votes&pid=" + pid)).json()
             this.allVotes[pid] = votes == null ? [] : votes;
         }
 
+        // Calculate post 'rating'
+
         let count = 0;
         for (let vote of this.allVotes[pid]) {
-            if (vote.post === pid) {
-                count += parseInt(vote.type, 10);
+            if (vote != null) {
+                if (vote.post === pid) {
+                    count += parseInt(vote.type, 10);
+                }
             }
         }
         return count;

@@ -32,7 +32,7 @@ session_start(['read_and_close' => true]);
     <link rel="stylesheet" href="../../public/stylesheet.css">
 
     <!-- My script -->
-    <script src="/public/scripts/ImagePath.js"></script>
+    <script src="/public/scripts/ImageHandler.js"></script>
     <script src="/public/scripts/PostHandler.js"></script>
     <script src="/public/scripts/VoteHandler.js"></script>
     <script src="/public/scripts/script.js"></script>
@@ -47,7 +47,7 @@ session_start(['read_and_close' => true]);
 <body>
 
     <!-- Navbar -->
-    <div class="container-fluid shadow-sm p-4">
+    <div class="container-fluid shadow-sm p-4" id="navbar-container">
         <nav class="navbar navbar-expand-sm bg-light navbar-light border rounded">
 
             <div class="container-md p-2 border-left border-right">
@@ -57,7 +57,7 @@ session_start(['read_and_close' => true]);
                     <ul class="navbar-nav">
 
                         <li class="nav-item">
-                            <a class="nav-link <?= @$_GET['a'] == 'index' ? 'active' : '' ?>" href="?c=home">Príspevky</a>
+                            <a class="nav-link <?= !isset($_GET['a']) || @$_GET['a'] == 'index' ? 'active' : '' ?>" href="?c=home&a=index">Príspevky</a>
                         </li>
 
                         <li class="nav-item">
@@ -69,7 +69,7 @@ session_start(['read_and_close' => true]);
                         </li>
 
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle <?= @$_GET['c'] == 'account' ? 'active' : '' ?>" href="#" id="navbardrop" data-toggle="dropdown">
+                            <a class="<?= @$_SESSION['logged_in'] ? ' logged-in' : '' ?> nav-link dropdown-toggle<?= @$_GET['c'] == 'account' ? ' active' : '' ?>" href="#" id="navbardrop" data-toggle="dropdown">
                                 <?= @$_SESSION['logged_in'] ? $_SESSION['username'] : 'Účet' ?>
                             </a>
                             <div class="dropdown-menu">
@@ -77,8 +77,8 @@ session_start(['read_and_close' => true]);
                                     @$_SESSION['logged_in'] ?
                                         '
                                             <a class="dropdown-item" href="?c=account&a=profile">Profilové údaje</a>
-                                            <a class="dropdown-item" href="?c=account&a=logout">Odhlásiť sa</a>
                                             <a class="dropdown-item" href="?c=home&a=add_article">Pridať príspevok</a>
+                                            <a class="dropdown-item" href="?c=account&a=logout">Odhlásiť sa</a>
                                         '
                                         :
                                         '

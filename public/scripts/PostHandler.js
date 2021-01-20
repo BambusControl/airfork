@@ -3,24 +3,28 @@ class PostHandler
     postContainer;
     user;
     voteHandler;
+    imageHandler;
     type;
+    allPosts;
 
     constructor(container, user)
     {
-        this.toggleType = this.toggleType.bind(this);
-        this.createNewsPost = this.createNewsPost.bind(this);
+        this.createPost = this.createPost.bind(this);
         this.load = this.load.bind(this);
-        this.getVoteBlock = this.getVoteBlock.bind(this);
 
+        this.allPosts = [];
         this.postContainer = container;
-        this.type = container.title;
         this.user = user;
+        this.type = container.title;
 
         if (user != null) {
             this.voteHandler = new VoteHandler(user.uid);
+            this.voteHandler.loadAll();
         } else {
             this.voteHandler = null;
         }
+
+        this.imageHandler = new ImageHandler();
 
         if (this.type === "article") {
             let btn = document.getElementById("article-switch");
@@ -32,55 +36,63 @@ class PostHandler
         }
     }
 
-    async load(dataGet)
+    load(dataGet)
     {
-        try {
-            let input = "?c=home&a=get_all_posts&type=" + this.type + (dataGet.a === "profile" ? ("&uid=" + (dataGet.uid != null ? dataGet.uid : this.user.uid)) : "");
-            let data = await ( await fetch(input) ).json();
-            // await this.voteHandler.load();
-
-            data.forEach(this.createNewsPost);
-        } catch (e) {
-            console.error("Error PostHandler::load() " + e.message);
-        }
-    }
-
-    async toggleType(checkbox)
-    {
-        if (this.type === "article") {
-            this.type = "userpost";
+        let request = "?c=home&a=get_posts";
+        if (dataGet.a === "profile") {
+            request += "&uid=" + (dataGet.uid != null ? dataGet.uid : this.user.uid);
         } else {
-            this.type = "article";
+            request += "&type=" + this.type;
         }
 
-        checkbox.prop("disabled", true);
-
-        $("#first").toggle();
-        $("#second").toggle();
-
-        this.postContainer.innerHTML = "";
         let spinner = new Spinner(this.postContainer);
-        try {
-            this.load(_GET()).then(() => {
-                spinner.remove();
-                checkbox.prop("disabled", false);
-            });
-        } catch (e) {
-            console.error("Error PostHandler::toggleType() " + e.message);
-        }
+        fetch(request).then(
+            j => j.json().then(
+                posts => {
+                    spinner.remove();
+                    posts.forEach(this.createPost);
+                }
+            )
+        );
     }
 
-    createNewsPost(post)
+    toggleType(checkbox)
     {
-        let header = this.generateHeader(post);
-        let image = ImagePath.getImgAsync(post.image);
-        let body = this.generateBody(post);
-        let footer = this.generateFooter();
+        // if (this.type != null) {
+            if (this.type === "article") {
+                this.type = "userpost";
+            } else {
+                this.type = "article";
+            }
 
-        let card = this.generateCard(header, image, body, footer);
+            // checkbox.prop("disabled", true);
 
-        // Add the news post card-div into the list
-        this.postContainer.appendChild(card);
+            $("#first").toggle();
+            $("#second").toggle();
+
+            this.postContainer.innerHTML = "";
+            this.load(_GET());
+        // }
+    }
+
+    createPost(post)
+    {
+        if (this.allPosts[post.id] == null) {
+            let header = this.generateHeader(post);
+            let image = this.imageHandler.getImgAsync(post.image);
+            let body = this.generateBody(post);
+            let footer = this.generateFooter();
+
+            let card = this.generateCard(header, image, body, footer);
+
+            // Add the news post card-div into the list
+            this.postContainer.appendChild(card);
+
+            this.allPosts[post.id] = card;
+        } else {
+            this.postContainer.appendChild(this.allPosts[post.id]);
+            // console.log("Cached post: pid = " + post.id);
+        }
     }
 
     generateCard(cardHeader, cardImage, cardBody, cardFooter)
@@ -134,141 +146,143 @@ class PostHandler
             let detR2 = document.createElement("tr");
             detR2.innerHTML = "<a href=\"?c=account&a=profile&uid=" + post.author + "\">Profil autora</a>";
             details.appendChild(detR2);
-        }
 
+            cardHeader.appendChild(details);
 
-        cardHeader.appendChild(details);
+            // Edit part part
+            if (this.user.is_admin || post.author == this.user.uid) {
 
-        // Admin part
-        if (this.user.logged_in && (this.user.is_admin || post.author == this.user.uid)) {
+                let error = document.createElement("small");
+                error.className = "text-danger";
+                $(error).toggle();
+                error.innerText = "Nastala chyba!";
 
-            let error = document.createElement("small");
-            error.className = "text-danger";
-            $(error).toggle();
-            error.innerText = "Nastala chyba!";
+                let hcontainer = document.createElement("div");
+                hcontainer.setAttribute("data-id", post.id);
 
-            let hcontainer = document.createElement("div");
-            hcontainer.setAttribute("data-id", post.id);
-
-            if (post.author == this.user.uid) {
-                let btnEdit = document.createElement("button");
-                btnEdit.className = "btn btn-sm btn-light text-primary";
-                btnEdit.innerText = "Edit";
-                btnEdit.setAttribute("data-state", "0");
-                btnEdit.type = "submit";
-                btnEdit.onclick = function () {
-                    let b = $(btnEdit);
-                    let state = parseInt(b.attr("data-state"));
-
-                    // Paragraph
-                    let p = $(cardHeader).parent().find("p").toggle();
-                    let isTextP = p.siblings().length === 0;
-                    let pt;
-                    if (isTextP) {
-                        pt = $("<textarea></textarea>").text(p.text()).addClass("form-control");
-                        pt.prop("required", true);
-                        p.after(pt);
-                    } else {
-                        pt = p.next().toggle();
-                        if (state === 0) {
-                            pt.val(p.text());
-                        }
-                    }
-
-                    // Title
-                    let h = $(title).toggle();
-                    let ht;
-                    if (isTextP) {
-                        ht = $("<input type=\"text\">").val(h.text()).addClass("form-control");
-                        ht.prop("required", true);
-                        h.after(ht);
-                    } else {
-                        ht = h.next().toggle();
-                        if (state === 0) {
-                            ht.val(h.text());
-                        }
-                    }
-
-                    // Post data
-                    if (state === 1) {
-                        let spinner = $("<div class=\"spinner-grow spinner-grow-sm\"></div>");
-                        h.before(spinner);
-
-                        $.post(
-                            "?c=home&a=modify_post",
-                            {
-                                id: post.id,
-                                title: ht.val(),
-                                text: pt.val()
-                            },
-                            function (data, status) {
-                                h.prev().remove();
-                                if (status !== "success" || data.error != null) {
-                                    error.innerText += "  " + data.error;
-                                    $(error).toggle();
-                                } else {
-                                    h.text(data['title']);
-                                    p.text(data['content']);
-                                }
-                            }
-                        )
-                    }
-
-                    // Button
-                    b.toggleClass("text-primary");
-                    b.toggleClass("btn-light");
-                    b.toggleClass("btn-success");
-
-                    state = state + 1;
-                    state = state % 2;
-                    if (state === 0) {
-                        b.text("Edit");
-                    } else {
-                        b.text("Save");
-                    }
-                    b.attr("data-state", state);
-                };
-                hcontainer.appendChild(btnEdit);
-            }
-
-            let btnDelete = document.createElement("button");
-            btnDelete.className = "btn btn-sm btn-light text-danger";
-            btnDelete.setAttribute("data-state", "0");
-            btnDelete.innerText = "Delete";
-            btnDelete.onclick = () => {
-                let state = parseInt(btnDelete.getAttribute("data-state"));
-                let b = $(btnDelete);
-
-                if (state === 0) {
-                    state++;
-                    b.toggleClass("btn-light text-danger btn-danger");
-                    b.text("Vymazať");
-                } else {
-                    let spinner = $("<div class=\"spinner-grow spinner-grow-sm\"></div>");
-                    $(title).before(spinner);
-                    $.get(
-                        "?c=home&a=remove_post&pid=" + post.id,
-                        (data, status) => {
-                            spinner.remove();
-                            if (status === "success") {
-                                $(cardHeader).parent().remove();
-                            } else {
-                                $(error).toggle();
-                            }
-                        }
-                    );
+                // Edit button
+                if (post.author == this.user.uid) {
+                    let btnEdit = document.createElement("button");
+                    btnEdit.className = "btn btn-sm btn-light text-primary";
+                    btnEdit.innerText = "Edit";
+                    btnEdit.setAttribute("data-state", "0");
+                    btnEdit.type = "submit";
+                    btnEdit.onclick = () => this.onEdit(btnEdit, cardHeader, title, post, error);
+                    hcontainer.appendChild(btnEdit);
                 }
-                alert(state);
-                b.attr("data-state", state);
-            }
 
-            hcontainer.append(btnDelete, error);
-            // console.log(hcontainer.getAttribute("data-id"));
-            // hcontainer.style = "position : relative; float : right; left : 8vh"
-            cardHeader.appendChild(hcontainer);
+                // Delete button
+                let btnDelete = document.createElement("button");
+                btnDelete.className = "btn btn-sm btn-light text-danger";
+                btnDelete.setAttribute("data-state", "0");
+                btnDelete.innerText = "Delete";
+                btnDelete.onclick = () => this.onDelete(btnDelete, cardHeader, title, post, error);
+
+                hcontainer.append(btnDelete, error);
+                cardHeader.appendChild(hcontainer);
+            }
         }
 
         return cardHeader;
+    }
+
+    onDelete(btnDelete, cardHeader, title, post, error) // TODO comment
+    {
+        let state = parseInt(btnDelete.getAttribute("data-state"));
+        let b = $(btnDelete);
+
+        if (state === 0) {
+            state++;
+            b.toggleClass("btn-light text-danger btn-danger");
+            b.text("Vymazať");
+        } else {
+            let spinner = $("<div class=\"spinner-grow spinner-grow-sm\"></div>");
+            $(title).before(spinner);
+            $.get(
+                "?c=home&a=remove_post&pid=" + post.id,
+                (data, status) => {
+                    spinner.remove();
+                    if (status === "success") {
+                        $(cardHeader).parent().remove();
+                    } else {
+                        $(error).toggle();
+                    }
+                }
+            );
+        }
+        b.attr("data-state", state);
+    }
+
+    onEdit(btnEdit, cardHeader, title, post, error) // TODO comment
+    {
+        let b = $(btnEdit);
+        let state = parseInt(b.attr("data-state"));
+
+        // Paragraph
+        let p = $(cardHeader).parent().find("p").toggle();
+        let isTextP = p.siblings().length === 0;
+        let pt;
+        if (isTextP) {
+            pt = $("<textarea></textarea>").text(p.text()).addClass("form-control");
+            pt.prop("required", true);
+            p.after(pt);
+        } else {
+            pt = p.next().toggle();
+            if (state === 0) {
+                pt.val(p.text());
+            }
+        }
+
+        // Title
+        let h = $(title).toggle();
+        let ht;
+        if (isTextP) {
+            ht = $("<input type=\"text\">").val(h.text()).addClass("form-control");
+            ht.prop("required", true);
+            h.after(ht);
+        } else {
+            ht = h.next().toggle();
+            if (state === 0) {
+                ht.val(h.text());
+            }
+        }
+
+        // Post data
+        if (state === 1) {
+            let spinner = $("<div class=\"spinner-grow spinner-grow-sm\"></div>");
+            h.before(spinner);
+
+            $.post(
+                "?c=home&a=modify_post",
+                {
+                    id: post.id,
+                    title: ht.val(),
+                    text: pt.val()
+                },
+                function (data, status) {
+                    h.prev().remove();
+                    if (status !== "success" || data.error != null) {
+                        error.innerText += "  " + data.error;
+                        $(error).toggle();
+                    } else {
+                        h.text(data['title']);
+                        p.text(data['content']);
+                    }
+                }
+            )
+        }
+
+        // Button
+        b.toggleClass("text-primary btn-light btn-success");
+
+        state = state + 1;
+        state = state % 2;
+        if (state === 0) {
+            b.text("Edit");
+        } else {
+            b.text("Save");
+        }
+        b.attr("data-state", state);
     }
 
     generateFooter()
@@ -317,13 +331,9 @@ class PostHandler
         voteBlock.id = post.id;
 
         // Check if user voted on this post
-        this.voteHandler.userVote(voteBlock.id).then(
+        this.voteHandler.userVoteType(voteBlock.id).then(
             vote => {
                 // Create voting system and append to voteBlock
-                if (vote != null) {
-                    console.log("vote " + vote);
-                    vote = parseInt(vote.type, 10);
-                }
 
                 // Upvote button
                 let upvoteArrow = document.createElement("i");

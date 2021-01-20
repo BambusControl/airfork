@@ -21,7 +21,7 @@
 
             <div class="form-group">
                 <label for="title">Nadpis:</label>
-                <input type="text" class="form-control form-control-lg <?= empty($data['error']['title']) ? '' : 'is-invalid' ?>" id="title" name="title" aria-describedby="title-warning" value="<?= empty($data['title']) ? "" : $data['title'] ?>">
+                <input type="text" class="form-control form-control-lg <?= empty($data['error']['title']) ? '' : 'is-invalid' ?>" id="title" name="title" aria-describedby="title-warning" value="<?= empty($data['title']) ? "" : $data['title'] ?>" required>
                 <?= empty($data['error']['title']) ? '' :
                     '<small id="title-warning" class="form-text invalid-feedback">' . $data['error']['title'] . '</small>'
                 ?>
@@ -29,7 +29,7 @@
 
             <div class="form-group">
                 <label for="text">Text:</label>
-                <textarea class="form-control <?= empty($data['error']['text']) ? '' : 'is-invalid' ?>" rows="5" id="text" name="text" aria-describedby="title-warning"><?= empty($data['text']) ? "" : $data['text'] ?></textarea>
+                <textarea class="form-control <?= empty($data['error']['text']) ? '' : 'is-invalid' ?>" rows="5" id="text" name="text" aria-describedby="title-warning" required><?= empty($data['text']) ? "" : $data['text'] ?></textarea>
                 <?= empty($data['error']['text']) ? '' :
                     '<small id="text-warning" class="form-text invalid-feedback">' . $data['error']['text'] . '</small>'
                 ?>

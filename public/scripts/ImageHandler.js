@@ -8,7 +8,7 @@ class ImageHandler
     }
 
     async loadAll() {
-        fetch("?c=home&a=get_images").then(
+        fetch("?c=content&a=get_images").then(
             j => j.json().then(
                 imgs => imgs.forEach(
                     img => {
@@ -19,16 +19,9 @@ class ImageHandler
                 )
             )
         );
-
-        /*let imgs = await ( await fetch("?c=home&a=get_images") ).json();
-        imgs.forEach(
-            image => {
-                this.imagePath[image.id] = image.path;
-            }
-        );*/
     }
 
-    getImgAsync(id) {   // TODO rename
+    getImg(id) {
         if (id == null) {
             return null;
         }
@@ -41,7 +34,7 @@ class ImageHandler
             // console.log("Cached image : " + this.imagePath[id]);
             img.src = this.imagePath[id];
         } else {
-            fetch("?c=home&a=get_image&id=" + id).then(
+            fetch("?c=content&a=get_image&id=" + id).then(
                 doc => {
                     doc.json().then(
                         image => {

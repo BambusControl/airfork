@@ -4,6 +4,7 @@ class PostHandler
     user;
     voteHandler;
     imageHandler;
+    userHandler;
     type;
     allPosts;
 
@@ -27,6 +28,9 @@ class PostHandler
         this.imageHandler = new ImageHandler();
         this.imageHandler.loadAll();
 
+        this.userHandler = new UserHandler();
+        this.userHandler.loadAll();
+
         if (this.type === "article") {
             let btn = document.getElementById("article-switch");
             if (btn != null) {
@@ -39,7 +43,7 @@ class PostHandler
 
     load(dataGet)
     {
-        let request = "?c=home&a=get_posts";
+        let request = "?c=content&a=get_posts";
         if (dataGet.a === "profile") {
             request += "&uid=" + (dataGet.uid != null ? dataGet.uid : this.user.uid);
         } else {
@@ -59,28 +63,24 @@ class PostHandler
 
     toggleType(checkbox)
     {
-        // if (this.type != null) {
-            if (this.type === "article") {
-                this.type = "userpost";
-            } else {
-                this.type = "article";
-            }
+        if (this.type === "article") {
+            this.type = "userpost";
+        } else {
+            this.type = "article";
+        }
 
-            // checkbox.prop("disabled", true);
+        $("#first").toggle();
+        $("#second").toggle();
 
-            $("#first").toggle();
-            $("#second").toggle();
-
-            this.postContainer.innerHTML = "";
-            this.load(_GET());
-        // }
+        this.postContainer.innerHTML = "";
+        this.load(_GET(), checkbox.prop("disabled", false));
     }
 
     createPost(post)
     {
         if (this.allPosts[post.id] == null) {
             let header = this.generateHeader(post);
-            let image = this.imageHandler.getImgAsync(post.image);
+            let image = this.imageHandler.getImg(post.image);
             let body = this.generateBody(post);
             let footer = this.generateFooter();
 
@@ -100,7 +100,7 @@ class PostHandler
     {
         // Add everything to the card div
         let card = document.createElement("div");
-        card.className = "card post max-height";
+        card.className = "card post";
 
         // Header
         card.appendChild(cardHeader);
@@ -145,7 +145,7 @@ class PostHandler
         // Author
         if (this.user.logged_in) {
             let detR2 = document.createElement("tr");
-            detR2.innerHTML = "<a href=\"?c=account&a=profile&uid=" + post.author + "\">Profil autora</a>";
+            detR2.appendChild(this.userHandler.getProfileLink(post.author));
             details.appendChild(detR2);
 
             cardHeader.appendChild(details);
@@ -164,7 +164,7 @@ class PostHandler
                 // Edit button
                 if (post.author == this.user.uid) {
                     let btnEdit = document.createElement("button");
-                    btnEdit.className = "btn btn-sm btn-light text-primary";
+                    btnEdit.className = "btn btn-sm btn-light text-primary mr-2 mt-2";
                     btnEdit.innerText = "Upraviť";
                     btnEdit.setAttribute("data-state", "0");
                     btnEdit.type = "submit";
@@ -174,7 +174,7 @@ class PostHandler
 
                 // Delete button
                 let btnDelete = document.createElement("button");
-                btnDelete.className = "btn btn-sm btn-light text-danger";
+                btnDelete.className = "btn btn-sm btn-light text-danger mt-2";
                 btnDelete.setAttribute("data-state", "0");
                 btnDelete.innerText = "Vymazať";
                 btnDelete.onclick = () => this.onDelete(btnDelete, cardHeader, title, post, error);
@@ -187,7 +187,7 @@ class PostHandler
         return cardHeader;
     }
 
-    onDelete(btnDelete, cardHeader, title, post, error) // TODO comment
+    onDelete(btnDelete, cardHeader, title, post, error)
     {
         let state = parseInt(btnDelete.getAttribute("data-state"));
         let b = $(btnDelete);
@@ -213,8 +213,9 @@ class PostHandler
             // Delete the post
             let spinner = $("<div class=\"spinner-grow spinner-grow-sm\"></div>");
             $(title).before(spinner);
-            $.get(
-                "?c=home&a=remove_post&pid=" + post.id,
+            $.post(
+                "?c=content&a=remove_post",
+                {pid : post.id},
                 (data, status) => {
                     spinner.remove();
                     if (status === "success") {
@@ -228,7 +229,7 @@ class PostHandler
         b.attr("data-state", state);
     }
 
-    onEdit(btnEdit, cardHeader, title, post, error) // TODO comment
+    onEdit(btnEdit, cardHeader, title, post, error)
     {
         let b = $(btnEdit);
         let state = parseInt(b.attr("data-state"));
@@ -237,9 +238,9 @@ class PostHandler
         let p = $(cardHeader).parent().find("p").toggle();
         let isTextP = p.siblings().length === 0;
         let pt;
+        p.parent().css("display", "block");
         if (isTextP) {
-            pt = $("<textarea></textarea>").text(p.text()).addClass("form-control");
-            pt.prop("required", true);
+            pt = $("<textarea></textarea>").text(p.text()).addClass("form-control").prop("required", true);
             p.after(pt);
         } else {
             pt = p.next().toggle();
@@ -252,7 +253,7 @@ class PostHandler
         let h = $(title).toggle();
         let ht;
         if (isTextP) {
-            ht = $("<input type=\"text\">").val(h.text()).addClass("form-control");
+            ht = $("<input type=\"text\" class=\"m-2\">").val(h.text()).addClass("form-control");
             ht.prop("required", true);
             h.after(ht);
         } else {
@@ -268,7 +269,7 @@ class PostHandler
             h.before(spinner);
 
             $.post(
-                "?c=home&a=modify_post",
+                "?c=content&a=modify_post",
                 {
                     id: post.id,
                     title: ht.val(),
@@ -293,16 +294,15 @@ class PostHandler
         state = state + 1;
         state = state % 2;
         if (state === 0) {
-            b.text("Edit");
+            b.text("Upraviť");
         } else {
-            b.text("Save");
+            b.text("Uložiť");
         }
         b.attr("data-state", state);
     }
 
     generateFooter()
     {
-        // Create footer TODO footer
         let cardFooter = document.createElement("div");
         cardFooter.className = "card-footer p-0";
 
@@ -313,8 +313,8 @@ class PostHandler
         showmore.type = "button";
         showmore.className = "block outl-n";
         $(cardFooter).click(function () {
-            $(cardFooter).parent().toggleClass("max-height");
-            // TODO flip arrow
+            // $(cardFooter).parent().toggleClass("max-height");
+            $(cardFooter).prev().toggle();
         });
         showmore.append(expand);
 
@@ -328,7 +328,6 @@ class PostHandler
         let paragraph = document.createElement("p");
         paragraph.className = "card-text";
         paragraph.innerText = post.content;
-        // TODO trim text - then button view more...
 
         // Create card body
         let cardBody = document.createElement("div");
@@ -377,7 +376,7 @@ class PostHandler
                         count.innerText = c;
                         s.remove();
                     }
-                );    // TODO string format
+                );
 
                 voteBlock.append(upvote, count, downvote);
             }

@@ -7,7 +7,7 @@ $(document).ready(async function(){
         let posts = new PostHandler(container, user);
         let dataGet = _GET();
         await posts.load(dataGet);
-        setInterval(posts.load, 60000, dataGet);
+        setInterval(posts.load, 300000, dataGet);
     }
 });
 
@@ -32,7 +32,12 @@ class Spinner
 
         this.spinner = $(span ? "<span></span>" : "<div></div>");
         this.spinner.addClass(grow ? "spinner-grow" : "spinner-border")
-        if (small) { this.spinner.addClass(grow ? "spinner-grow-sm" : "spinner-border-sm") };
+
+        if (small) {
+            this.spinner.addClass(grow ? "spinner-grow-sm" : "spinner-border-sm")
+
+        }
+
         if (!span) {
             this.spinner.css("display", "block");
             this.spinner.css("margin-left", "auto");

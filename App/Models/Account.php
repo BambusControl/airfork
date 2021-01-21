@@ -137,4 +137,14 @@ class Account extends Model
         return $this->is_admin;
     }
 
+    public function getData()
+    {
+        return [
+            'id' => $this->id,
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname,
+            'is_admin' => $this->is_admin
+        ];
+    }
+
 }

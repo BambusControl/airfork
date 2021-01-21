@@ -74,14 +74,6 @@
                         </label>
                     </div>
 
-                    <!--TODO remove-->
-                    <!--<div class="form-check-inline disabled">
-                        <label class="form-check-label hoverable">
-                            <input type="radio" class="form-check-input" name="gender" value="other" disabled <?/*= @$data['gender'] == 'other' ? "checked" : "" */?> required>Iné
-                            <span class="tooltip">Táto možnosť vám nie je prístupná</span>
-                        </label>
-                    </div>-->
-
                 </div>
                 <?= empty($data['error']['gender']) ? '' :
                     '<small id="gender-warning" class="form-text invalid-feedback">' . $data['error']['gender'] . '</small>'

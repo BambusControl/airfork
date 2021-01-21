@@ -10,11 +10,11 @@
 
         <form method="post" enctype="multipart/form-data">
 
-            <?= // TODO user admins and not
-                @$_SESSION['uid'] == 1 ? '
+            <?=
+                @$_SESSION['is_admin'] ? '
                         <div class="form-group custom-control custom-switch">
-                            <label class="custom-control-label" for="article_switch">Vytvoriť novinový článok</label>
                             <input type="checkbox" class="custom-control-input" name="article_switch" value="true" id="article_switch">
+                            <label class="custom-control-label" for="article_switch">Vytvoriť novinový článok</label>
                         </div>
                     ' : ''
             ?>

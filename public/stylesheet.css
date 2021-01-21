@@ -3,7 +3,6 @@ body {
 }
 
 #navbar-container {
-    /*background-color: rgb(242, 248, 225); // TODO*/
     background-color: whitesmoke;
 }
 
@@ -52,7 +51,12 @@ div.post img {
 }
 
 div.post div.card{
-    margin-bottom: 2vh;
+    margin-bottom: 24px;
+    transition: 0.2s ease-in-out;
+}
+
+div.post div.card:hover{
+    box-shadow: rgba(0, 0, 0, 0.1) 0 0 4px;
 }
 
 .image-input {
@@ -63,18 +67,20 @@ div.card-header.post {
     padding: 0.75rem 1rem;
 }
 
-.max-height {
-    max-height: 80vh;
-}
-
 .overflow-h {
     overflow: hidden;
 }
 
 .post-details {
     float: right;
+    text-align: right;
     opacity: 70%;
     font-size: 70%;
+}
+
+.post img + .card-body {
+    display: none;
+    transition: 0.2s ease-in-out;
 }
 
 .block {
@@ -211,14 +217,14 @@ label.hoverable:hover .tooltip {
 
 /* ------------------- */
 
-.switch {
+.a-switch {
     position: relative;
     display: inline-block;
     width: 100%;
     height: 4vh;
 }
 
-.switch input {
+.a-switch input {
     opacity: 0;
     width: 0;
     height: 0;
@@ -233,8 +239,9 @@ label.hoverable:hover .tooltip {
     right: 0;
     bottom: 0;
     background-color: rgba(255, 0, 0, 0.1);
-    /*-webkit-transition: .4s;*/
     transition: 0.5s ease-in-out;
+    box-shadow: rgba(0, 0, 0, 0.2) inset 0 0 2px;
+    border: gray;
 }
 
 .slider:before {
@@ -247,6 +254,7 @@ label.hoverable:hover .tooltip {
     bottom: 6px;
     background-color: white;
     transition: 0.5s ease-in-out;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
 }
 
 #first, #second {
@@ -267,8 +275,12 @@ input:checked + .slider {
     background-color: rgba(0, 0, 255, 0.1);
 }
 
-input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
+input:focus + .slider, input:hover + .slider {
+    box-shadow: rgba(0, 0, 0, 0.2) inset 0 0 6px;
+}
+
+input:focus + .slider:before, input:hover + .slider:before {
+    box-shadow: rgba(0, 0, 0, 0.2) 0 0 6px;
 }
 
 input:checked + .slider:before {

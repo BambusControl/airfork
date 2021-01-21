@@ -2,8 +2,8 @@
 <div class="container-fluid p-1 mb-2 border" id="locator">
     <div class="container-fluid">
         <h1 class="display-4 text-center">Lietadlá</h1>
-        <p class="lead text-center">
-            Letectvo by sa asi len ťažko <strike>obišlo</strike> bez lietadiel.
+        <p class="lead text-center container-xl">
+            Letectvo by sa asi len ťažko obišlo bez lietadiel. Tu je náš výber významných a najzaujímavejších lietadiel všetkých kategórií.
         </p>
     </div>
 </div>

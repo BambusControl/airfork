@@ -1,5 +1,12 @@
 <?php /** @var array $data */ ?>
 
+<!-- My script -->
+<script src="/public/scripts/ImageHandler.js"></script>
+<script src="/public/scripts/UserHandler.js"></script>
+<script src="/public/scripts/PostHandler.js"></script>
+<script src="/public/scripts/VoteHandler.js"></script>
+<script src="/public/scripts/script.js"></script>
+
 <!-- Obsah -->
 <div class="container-fluid">
 

@@ -5,6 +5,7 @@ namespace App\Models;
 
 
 use App\Core\Model;
+use Exception;
 use PDOException;
 
 class Image extends Model
@@ -51,6 +52,8 @@ class Image extends Model
         if ($this->ref == 0) {
             parent::delete();
             unlink($this->path);
+        } else {
+            $this->save();
         }
     }
 
@@ -58,12 +61,12 @@ class Image extends Model
     {
         try {
             $images = self::getAll();
-        } catch (\Exception $e) {
-            return; // TODO
+        } catch (Exception $e) {
+            return false;
         }
 
         if (count($images) === 0) {
-            return;
+            return false;
         }
 
         $paths = [];
@@ -74,7 +77,6 @@ class Image extends Model
         }
 
         $array = scandir("public/visuals/images/");
-        $found = false;
 
         $i = 0;
         foreach ($array as $n) {
@@ -94,10 +96,11 @@ class Image extends Model
             }
         }
 
+        return true;
     }
 
     /**
-     * @throws \Exception if query failed
+     * @throws Exception if query failed
      */
     public function addReference()
     {
@@ -108,7 +111,7 @@ class Image extends Model
 
     /**
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function save()
     {
@@ -136,7 +139,7 @@ class Image extends Model
                 return $data[self::$pkColumn];
             }
         } catch (PDOException $e) {
-            throw new \Exception('Query failed: ' . $e->getMessage());
+            throw new Exception('Query failed: ' . $e->getMessage());
         }
     }
 }

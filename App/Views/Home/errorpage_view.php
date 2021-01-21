@@ -7,7 +7,8 @@
             <h1 class="display-4">Oopsie! </h1>
             <p class="lead">Nastala chyba!</p>
             <hr class="my-4">
-            <p>Skúste to zopakovať neskôr. Ak to nepomôže, tak niekde v kóde je pravdepodobne chyba. V žiadnom prípade ma nekontaktujte.</p>
+            <p>Skúste to zopakovať neskôr. Ak to nepomôže, tak niekde v kóde je pravdepodobne chyba.</p>
+            <!--<p>Skúste to zopakovať neskôr. Ak to nepomôže, tak niekde v kóde je pravdepodobne chyba. V žiadnom prípade ma nekontaktujte.</p>-->
         </div>
 
     </div>

@@ -4,7 +4,6 @@ namespace App\Models;
 
 
 use App\Core\Model;
-use mysql_xdevapi\Exception;
 
 class Post extends Model
 {
@@ -46,49 +45,31 @@ class Post extends Model
         return 'posts';
     }
 
-    /**
-     * @param mixed|string $content
-     */
     public function setContent($content): void
     {
         $this->content = $content;
     }
 
-    /**
-     * @param mixed|string $title
-     */
     public function setTitle($title): void
     {
         $this->title = $title;
     }
 
-    /**
-     * @param mixed|string $date
-     */
     public function setDate($date): void
     {
         $this->date = $date;
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getAuthor()
     {
         return $this->author;
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getTitle()
     {
         return $this->title;
     }
 
-    /**
-     * @return mixed|string
-     */
     public function getContent()
     {
         return $this->content;

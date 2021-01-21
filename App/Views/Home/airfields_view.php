@@ -2,7 +2,7 @@
 <div class="container-fluid p-1 mb-2 border" id="locator">
     <div class="container-fluid">
         <h1 class="display-4 text-center">Verejné letiská na slovensku</h1>
-        <p class="lead text-center">
+        <p class="lead text-center container-xl">
             Na slovensku je 14 verejných letísk, z toho tri (Bratislava, Košice, Poprad) majú pravidelné letecké linky. Okrem týchto je na slovensku množstvo neverejných letísk, spravidla s trávnatou vzletovou a pristávacou plochou, ktoré sú zväčša vlastnené lokálnymi aeroklubmi.
         </p>
     </div>

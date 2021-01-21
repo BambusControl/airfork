@@ -13,7 +13,7 @@ class VoteHandler
 
     loadAll()
     {
-        fetch("?c=home&a=get_votes").then(
+        fetch("?c=content&a=get_votes").then(
             j => j.json().then( votes => {
                 for (let vote of votes) {
                     if (this.allVotes[vote.post] == null) {
@@ -33,7 +33,7 @@ class VoteHandler
     {
         if (this.userVoteTypes[pid] == null) {
             // Get vote from server
-            let vote = await (await fetch("?c=home&a=get_vote&pid=" + pid + "&uid=" + this.uid)).json()
+            let vote = await (await fetch("?c=content&a=get_vote&pid=" + pid + "&uid=" + this.uid)).json()
             this.userVoteTypes[pid] = vote == null ? 0 : parseInt(vote.type, 10);
             return this.userVoteTypes[pid];
         } else {
@@ -43,11 +43,11 @@ class VoteHandler
         }
     }
 
-    async vote(voteBtn) // TODO $_POST
+    async vote(voteBtn)
     {
         // Get id of the post
         let pid = voteBtn.parent()[0].id;
-        let request = '';
+        let request;
 
         let isUpvote = voteBtn.hasClass("btn-upvote");
         let className = {true : "upvoted", false : "downvoted"};
@@ -57,26 +57,17 @@ class VoteHandler
         if (otherVote.hasClass(className[!isUpvote])) {
             // Other vote button was clicked, unclick the button
             otherVote.removeClass(className[!isUpvote]);
-            /*request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=" + "0";
-            await fetch(request);
-            request = "?c=home&a=vote";
-            $.post(request, { pid : pid, uid : this.uid, t : 0 });*/
         }
 
         // Update button appearance
         voteBtn.toggleClass(className[isUpvote])
 
         // Update database
-        // request = "?c=home&a=vote&pid=" + pid + "&uid=" + this.uid + "&t=";
-        // request += voteBtn.hasClass(className[isUpvote]) ? (isUpvote ? "1" : "-1") : "0";
-        request = "?c=home&a=vote";
+        request = "?c=content&a=vote";
 
         let voteCount = isUpvote ? voteBtn.next() : voteBtn.prev();
 
         // Vote and update count from server
-        /*fetch(request).then(() => {
-            this.voteCount(pid, true).then(count => voteCount.text(count));
-        });*/
         $.post(
             request,
             {
@@ -94,7 +85,7 @@ class VoteHandler
     {
         if (this.allVotes[pid] == null || forceUpdate) {
             // Get vote from server
-            let votes =  await ( await fetch("?c=home&a=get_votes&pid=" + pid)).json()
+            let votes =  await ( await fetch("?c=content&a=get_votes&pid=" + pid)).json()
             this.allVotes[pid] = votes == null ? [] : votes;
         }
 

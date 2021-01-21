@@ -31,13 +31,6 @@ session_start(['read_and_close' => true]);
     <!-- My stylesheet -->
     <link rel="stylesheet" href="../../public/stylesheet.css">
 
-    <!-- My script -->
-    <script src="/public/scripts/ImageHandler.js"></script>
-    <script src="/public/scripts/PostHandler.js"></script>
-    <script src="/public/scripts/VoteHandler.js"></script>
-    <script src="/public/scripts/script.js"></script>
-
-
     <!-- Tab title and logo -->
     <link rel="shortcut icon" href="../../public/visuals/favicon.ico" type="image/x-icon"/>
     <title>Letci Slovenska</title>
@@ -77,7 +70,7 @@ session_start(['read_and_close' => true]);
                                     @$_SESSION['logged_in'] ?
                                         '
                                             <a class="dropdown-item" href="?c=account&a=profile">Profilové údaje</a>
-                                            <a class="dropdown-item" href="?c=home&a=add_article">Pridať príspevok</a>
+                                            <a class="dropdown-item" href="?c=account&a=add_post">Pridať príspevok</a>
                                             <a class="dropdown-item" href="?c=account&a=logout">Odhlásiť sa</a>
                                         '
                                         :
